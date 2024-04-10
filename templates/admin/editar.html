@@ -1,0 +1,103 @@
+{%include 'admin/cabecera.html' %}
+<body>
+
+    <h1 class="text-center mt-5 mb-5 text-primary">NICA SHANGRI-LA<br>CRUD del Administrador</h1>
+
+    <div class="container">
+        <div class="card shadow">
+            <div class="card-body">
+                <form action="/admin/productos/guardaradv" method="post" enctype="multipart/form-data">
+                    <div class="row mb-3">
+                        <div class="col">
+                            <label>Nombre</label>
+                            <input type="text" class="form-control mb-3" name="txtNombre">
+                        </div>
+                        <div class="col">
+                            <label>Imagen</label>
+                            <input type="file" class="form-control mb-3" name="txtImagen">
+                        </div>
+                        <div class="col">
+                            <label>Precio</label>
+                            <input type="text" class="form-control mb-3" name="txtPrecio">
+                        </div>
+                        <div class="col">
+                            <button class="btn btn-primary mb-3 mt-4" type="submit">Save</button>
+                        </div>
+                        </div>
+                        
+                    </div>
+
+                </form>
+
+
+                <!-- Tabla -->
+
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th scope="col">ID</th>
+                            <th scope="col">Nombre</th>
+                            <th scope="col">Imagen</th>
+                            <th scope="col">Precio</th>
+                            <th scope="col">Editar</th>
+                            <th scope="col">Borrar</th>
+                        </tr>
+                    </thead>
+                
+                <tbody>
+                    {% for p in producto %}
+                        <tr>
+                            <td>{{p.id}}</td>
+                            <td>{{p.nombre}}</td>
+                            <td><img src="/img/{{p.imagen}}" class="img-thumbnail" alt="{{p.imagen}}" style="max-width: 100px;"></td>
+                            <td>{{p.precio}}</td>
+                            <td><button class="btn btn-primary btn-sm" id="btn-edit{{p.id}}" data-bs-toggle="modal" data-bs-target="#modal{{p.id}}">Editar</button></td>
+                            
+                            <td><form action="/admin/productos/borraradv" method="post">
+                                <input type="hidden" name="txtID" value="{{p.id}}">
+                                <button type="submit" class="btn btn-danger">Eliminar</button>
+                            </form></td>
+                        </tr>
+
+                        <!-- modal -->
+
+                        <div class="modal fade" id="modal{{p.id}}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                            <div class="modal-dialog">
+                              <div class="modal-content">
+                                <div class="modal-header">
+                                  <h1 class="modal-title fs-5" id="exampleModalLabel">{{p.nombre}}</h1>
+                                  <button type="submit" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <form action="/admin/productos/actalizar" method="post" enctype="multipart/form-data">
+                                        <label>ID</label>
+                                        <input type="text" class="form-control mb-3" name="txtId" value="{{p.id}}">
+                                        <label>Nombre</label>
+                                        <input type="text" class="form-control mb-3" name="txtNombre" value="{{p.nombre}}">
+                                        <label>Imagen</label>
+                                        <input type="file" class="form-control mb-3" name="txtImagen" value="{{p.imagen}}">
+                                        <label>Password</label>
+                                        <input type="text" class="form-control mb-3" name="txtPrecio" value="{{p.precio}}">
+                                  
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="submit" class="btn btn-primary">Save changes</button>
+                                </div>
+                                </form>
+                              </div>
+                            </div>
+                          </div>
+
+                        
+                    {% endfor %}
+
+                </tbody>
+
+             </table>
+
+
+            </div>
+        </div>
+    </div>
+    
+</body>

@@ -1,0 +1,33 @@
+{%include 'sitio/cabecera.html' %}
+            
+<div class="container">
+    <div class="row row-cols-3 row-cols-md-4 g-4 justify-content-left">
+        {% for producto in productos %}
+        <div class="col">
+            <div class="card h-100">
+                <div class="overflow-hidden">
+                    <img src="/img/{{ producto[2] }}" class="card-img-top" alt="{{ producto[2] }}" style="width: 100%;">
+                </div>
+                <div class="card-body d-flex flex-column justify-content-between">
+                    <h4 class="card-title">{{ producto[1] }}</h4>
+                    <h4 class="card-title">U$ {{ producto[3] }}</h4>
+                    <p class="card-text"></p>
+                    
+                    <form action="/pagoexitoso" method="post" target="_top">
+                        <input type="hidden" name="cmd" value="_s-xclick" />
+                        <input type="hidden" name="hosted_button_id" value="ESZUJK57VWRHL" />
+                        <input type="hidden" name="currency_code" value="USD" />
+                        <input type="image" src="https://www.paypalobjects.com/es_ES/i/btn/btn_buynowCC_LG.gif" border="0" name="submit" title="PayPal." alt="Comprar ahora" />
+                      </form>
+                </div>
+            </div>
+        </div>
+        {% endfor %}               
+    </div>
+</div>
+
+
+
+        
+            
+{%include 'sitio/pie.html' %}

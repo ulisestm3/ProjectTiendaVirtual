@@ -1,0 +1,81 @@
+{% include 'admin/cabecera.html' %}
+<main>
+    <div class="container">
+        <!-- Primera fila -->
+        <div class="row">
+            <div class="col-lg-5 mb-3">
+                <!-- Formulario para agregar productos -->
+                <div class="card">
+                    <div class="card-header">Datos del producto</div>
+                    <div class="card-body">
+                        <form action="/admin/productos/guardar" method="post" enctype="multipart/form-data">
+                            <div class="mb-3">
+                                <label for="txtNombre" class="form-label">Nombre</label>
+                                <input type="text" class="form-control" name="txtNombre" id="txtNombre" placeholder="Escriba el nombre del producto">
+                            </div>
+                            <div class="mb-3">
+                                <label for="txtImagen" class="form-label">Imagen</label>
+                                <input type="file" class="form-control" name="txtImagen" id="txtImagen" placeholder="Seleccione de la imagen del producto">
+                            </div>
+                            <div class="mb-3">
+                                <label for="txtPrecio" class="form-label">Precio</label>
+                                <input type="text" class="form-control" name="txtPrecio" id="txtPrecio" placeholder="Ingrese el precio del producto">
+                            </div>
+                            <button type="submit" class="btn btn-success">Agregar</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-5 mb-3">
+                <!-- Formulario para editar productos -->
+                <div class="card">
+                    <div class="card-header">Editar producto</div>
+                    <div class="card-body">
+                        <form action="/admin/editar" method="post">
+                            <button type="submit" class="btn btn-success">Editar Avanzado</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Segunda fila -->
+        <div class="row">
+            <div class="col-lg-12">
+                <!-- Tabla de productos -->
+                <div class="table-responsive">
+                    <table class="table table-primary">
+                        <thead>
+                            <tr>
+                                <th scope="col">ID</th>
+                                <th scope="col">Nombre</th>
+                                <th scope="col">Imagen</th>
+                                <th scope="col">Precio</th>
+                                <th scope="col">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for producto in productos %}
+                            <tr>
+                                <td>{{ producto[0] }}</td>
+                                <td>{{ producto[1] }}</td>
+                                <td>
+                                    <img src="/img/{{ producto[2] }}" class="img-thumbnail" alt="{{ producto[2] }}" style="max-width: 100px;">
+                                </td>
+                                <td>{{ producto[3] }}</td>
+                                <td>
+                                    <form action="/admin/productos/borrar" method="post">
+                                        <input type="hidden" name="txtID" value="{{ producto[0] }}">
+                                        <button type="submit" class="btn btn-danger">Eliminar</button>
+                                    </form>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+
