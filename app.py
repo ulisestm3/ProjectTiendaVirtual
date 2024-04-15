@@ -82,6 +82,11 @@ def admin_login_post():
     else:
         return render_template('/admin/login.html', message = " Credenciales no son correctas " )
 
+@app.route('/admin/registro')
+def admin_registro():
+    return render_template('admin/registro.html')
+
+
 @app.route('/admin/productos')
 def admin_productos_leer():
     
