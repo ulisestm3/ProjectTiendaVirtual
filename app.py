@@ -14,7 +14,6 @@ def dbconnection():
     return pymysql.connect(host= config.MSQL_HOST, user= config.MSQL_USER, password= config.MSQL_PASSWORD, database= config.MSQL_DB)
 
 
-
 #Rutas para cargar imagenes
 @app.route('/img/<imagen>')
 def imagenes(imagen):
