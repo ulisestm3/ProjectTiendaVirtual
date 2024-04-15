@@ -3,11 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Registro de Usuario</title>
+    <title>nicashangrila</title>
 
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
 
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
 <body>
     <!-- Barra de navegación -->
@@ -41,25 +43,35 @@
     <div class="container mt-5">
         <form action="/admin/registro/usuario" method="post" class="col-md-6 offset-md-3">
             <h2 class="text-center mb-4">Registro de Usuario</h2>
+            
+            <!-- Aquí se mostrará el mensaje de error si existe -->
+            {% if mensaje %}
+            <div class="alert alert-danger" role="alert">
+                {{ mensaje }}
+            </div>
+            {% endif %}
+            
             <div class="mb-3">
-                <label for="usuario" class="form-label">Usuario:</label>
-                <input type="text" id="usuario" name="usuario" class="form-control" required>
+                <label for="txtUsuario" class="form-label">Usuario:</label>
+                <input type="text" id="txtUsuario" name="txtUsuario" class="form-control" required>
+                <div id="usuario-pista" class="form-text">Pista: Usuario puede ser la primera letra del primer nombre y el apellido completo. Ejemplo: Juan Perez - Usuario: jperez</div>
             </div>
             <div class="mb-3">
-                <label for="contrasena" class="form-label">Contraseña:</label>
-                <input type="password" id="contrasena" name="contrasena" class="form-control" required>
-            </div>            
+                <label for="txtPassword" class="form-label">Contraseña:</label>
+                <input type="password" id="txtPassword" name="txtPassword" class="form-control" required>
+            </div>
+                       
             <div class="mb-3">
-                <label for="nombre" class="form-label">Nombre:</label>
-                <input type="text" id="nombre" name="nombre" class="form-control">
+                <label for="txtNombre" class="form-label">Nombre:</label>
+                <input type="text" id="txtNombre" name="txtNombre" class="form-control">
             </div>
             <div class="mb-3">
-                <label for="apellido" class="form-label">Apellido:</label>
-                <input type="text" id="apellido" name="apellido" class="form-control">
+                <label for="txtApellido" class="form-label">Apellido:</label>
+                <input type="text" id="txtApellido" name="txtApellido" class="form-control">
             </div>
             <div class="mb-3">
-                <label for="correo" class="form-label">Correo electrónico:</label>
-                <input type="email" id="correo" name="correo" class="form-control">
+                <label for="txtEmail" class="form-label">Correo electrónico:</label>
+                <input type="email" id="txtEmail" name="txtEmail" class="form-control">
             </div>
             
             <div class="text-center">
@@ -70,5 +82,39 @@
 
     <!-- Bootstrap Bundle with Popper -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Script para limitar los espacios en el campo de usuario -->
+    <script>
+        $(document).ready(function(){
+            $('#txtUsuario').on('input', function(){
+                $(this).val(function(_, val){
+                    return val.replace(/\s+/g, '');
+                });
+            });
+        });
+
+        
+    </script>
+    <script>
+        function verificarCorreo() {
+            var email = document.getElementById('txtEmail').value;
+            var regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (regex.test(email)) {
+                return true; // El correo electrónico es válido
+            } else {
+                return false; // El correo electrónico es inválido
+            }
+        }
+    
+        // Agregar un evento al enviar el formulario para verificar el correo electrónico
+        document.querySelector('form').addEventListener('submit', function(event) {
+            if (!verificarCorreo()) {
+                event.preventDefault(); // Evita que el formulario se envíe si el correo electrónico es inválido
+                alert('Por favor, ingrese un correo electrónico válido.');
+            }
+        });
+    </script>
+    
 </body>
 </html>
+

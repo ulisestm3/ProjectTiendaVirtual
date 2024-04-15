@@ -86,6 +86,47 @@ def admin_login_post():
 def admin_registro():
     return render_template('admin/registro.html')
 
+@app.route('/admin/registro/usuario', methods=['POST'])
+def admin_registro_usuario():
+    conexion = None
+    
+    try:
+        _usuario = request.form['txtUsuario']
+        _password = request.form['txtPassword']
+        _nombre = request.form['txtNombre']
+        _apellido = request.form['txtApellido']
+        _email = request.form['txtEmail']
+
+        conexion = dbconnection()
+        cursor = conexion.cursor()
+
+        # Verificar si el usuario o el correo electrónico ya existen
+        sql_select = "SELECT * FROM usuarios WHERE usuario = %s OR email = %s"
+        cursor.execute(sql_select, (_usuario, _email))
+        usuario_existente = cursor.fetchone()
+
+        if usuario_existente:
+            # Si el usuario o el correo electrónico ya existen, mostrar un mensaje en el formulario de registro
+            return render_template('admin/registro.html', mensaje='El usuario o el correo electrónico ya existen.')
+
+        # Si el usuario y el correo electrónico no existen, insertar los datos en la base de datos
+        sql_insert = "INSERT INTO usuarios (usuario, password, nombre, apellido, email) VALUES (%s, %s, %s, %s, %s)"
+        cursor.execute(sql_insert, (_usuario, _password, _nombre, _apellido, _email))
+        conexion.commit()
+
+        # Redireccionar a la página de inicio de sesión después del registro exitoso
+        return render_template('admin/login.html')
+
+    except pymysql.Error as e:
+        print("Error de MySQL:", e)
+    finally:
+        if conexion is not None:
+            conexion.close()
+
+    return render_template('admin/login.html')
+
+
+
 
 @app.route('/admin/productos')
 def admin_productos_leer():
