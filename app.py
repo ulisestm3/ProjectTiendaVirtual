@@ -37,6 +37,18 @@ def productos():
     
     return render_template('sitio/productos.html', productos=productos)
 
+@app.route('/detalleproductos', methods=['POST'])
+def detalleproductos():
+    _id = request.form['txtID']
+    conexion = dbconnection()
+    cursor=conexion.cursor()
+    sql = 'SELECT * FROM productos WHERE id= %s'
+    cursor.execute(sql, _id)
+    productos=cursor.fetchall()
+    conexion.commit()
+
+    return render_template('sitio/detalleproductos.html', productos=productos)
+
 @app.route('/nosotros')
 def nosotros():
     return render_template('sitio/nosotros.html')
