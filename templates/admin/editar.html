@@ -8,17 +8,34 @@
             <div class="card-body">
                 <form action="/admin/productos/guardaradv" method="post" enctype="multipart/form-data">
                     <div class="row mb-3">
-                        <div class="col">
-                            <label>Nombre</label>
-                            <input type="text" class="form-control mb-3" name="txtNombre">
+                        <div class="mb-3">
+                            <label for="txtNombre" class="form-label">Nombre (*)</label>
+                            <input type="text" class="form-control" name="txtNombre" id="txtNombre" placeholder="Escriba el nombre del producto" required>
                         </div>
-                        <div class="col">
-                            <label>Imagen</label>
-                            <input type="file" class="form-control mb-3" name="txtImagen">
+                        <div class="mb-3">
+                            <label for="txtImagen1" class="form-label">Imagen 1 (*)</label>
+                            <input type="file" class="form-control" name="txtImagen1" id="txtImagen1" accept="image/*" placeholder="Seleccione la imagen del producto" required>
                         </div>
-                        <div class="col">
-                            <label>Precio</label>
-                            <input type="text" class="form-control mb-3" name="txtPrecio">
+                        
+                        <div class="mb-3">
+                            <label for="txtImagen2" class="form-label">Imagen 2</label>
+                            <input type="file" class="form-control" name="txtImagen2" id="txtImagen2" accept="image/*" placeholder="Seleccione de la imagen del producto">
+                        </div>
+                        <div class="mb-3">
+                            <label for="txtImagen3" class="form-label">Imagen 3</label>
+                            <input type="file" class="form-control" name="txtImagen3" id="txtImagen3" accept="image/*" placeholder="Seleccione de la imagen del producto">
+                        </div>
+                        <div class="mb-3">
+                            <label for="txtVideo" class="form-label">Video</label>
+                            <input type="file" class="form-control" name="txtVideo" id="txtVideo" accept="video/*" placeholder="Seleccione el video del producto">
+                        </div>                            
+                        <div class="mb-3">
+                            <label for="txtPrecio" class="form-label">Precio (*)</label>
+                            <input type="text" class="form-control" name="txtPrecio" id="txtPrecio" placeholder="Ingrese el precio del producto" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="txtDescripcion" class="form-label">Descripcion (*)</label>
+                            <input type="text" class="form-control" name="txtDescripcion" id="txtDescripcion" placeholder="Ingrese la descripción del producto" required>
                         </div>
                         <div class="col">
                             <button class="btn btn-primary mb-3 mt-4" type="submit">Guardar</button>
@@ -49,7 +66,7 @@
                         <tr>
                             <td>{{p.id}}</td>
                             <td>{{p.nombre}}</td>
-                            <td><img src="/img/{{p.imagen}}" class="img-thumbnail" alt="{{p.imagen}}" style="max-width: 100px;"></td>
+                            <td><img src="/img/{{p.imagen1}}" class="img-thumbnail" alt="{{p.imagen1}}" style="max-width: 100px;"></td>
                             <td>{{p.precio}}</td>
                             <td><button class="btn btn-primary btn-sm" id="btn-edit{{p.id}}" data-bs-toggle="modal" data-bs-target="#modal{{p.id}}">Editar</button></td>
                             
@@ -71,13 +88,23 @@
                                 <div class="modal-body">
                                     <form action="/admin/productos/actalizar" method="post" enctype="multipart/form-data">
                                         <label>ID</label>
-                                        <input type="text" class="form-control mb-3" name="txtId" value="{{p.id}}">
+                                        <input type="text" class="form-control mb-3" name="txtId" value="{{p.id}}" >
                                         <label>Nombre</label>
                                         <input type="text" class="form-control mb-3" name="txtNombre" value="{{p.nombre}}">
-                                        <label>Imagen</label>
-                                        <input type="file" class="form-control mb-3" name="txtImagen" value="{{p.imagen}}">
-                                        <label>Password</label>
+                                        <label>Imagen1</label>
+                                        <input type="file" class="form-control mb-3" name="txtImagen1" value="{{p.imagen1}}" accept="image/*">
+                                        <label hidden>Imagen11</label>
+                                        <input type="text" class="form-control mb-3" name="txtImagen11" value="{{p.imagen1}}" hidden>
+                                        <label>Imagen2</label>
+                                        <input type="file" class="form-control mb-3" name="txtImagen2" value="{{p.imagen1}}" accept="image/*">
+                                        <label>Imagen3</label>
+                                        <input type="file" class="form-control mb-3" name="txtImagen3" value="{{p.imagen1}}" accept="image/*">
+                                        <label>Video</label>
+                                        <input type="file" class="form-control mb-3" name="txtVideo" value="{{p.video}}" accept="video/*">
+                                        <label>Precio</label>
                                         <input type="text" class="form-control mb-3" name="txtPrecio" value="{{p.precio}}">
+                                        <label>Descripción</label>
+                                        <input type="text" class="form-control mb-3" name="txtDescripcion" value="{{p.descripcion}}">
                                   
                                 </div>
                                 <div class="modal-footer">

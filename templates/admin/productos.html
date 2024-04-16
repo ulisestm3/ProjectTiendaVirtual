@@ -69,7 +69,8 @@
                                 <th scope="col">Nombre</th>
                                 <th scope="col">Imagen</th>
                                 <th scope="col">Precio</th>
-                                <th scope="col">Acciones</th>
+                                <th scope="col">Edicion</th>
+                                <th scope="col">Eliminacion</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -81,6 +82,12 @@
                                     <img src="/img/{{ producto[2] }}" class="img-thumbnail" alt="{{ producto[2] }}" style="max-width: 100px;">
                                 </td>
                                 <td>{{ producto[6] }}</td>
+                                <td>
+                                    <form action="/admin/productos/actalizar" method="post">
+                                        <input type="hidden" name="txtID" value="{{ producto[0] }}">
+                                        <button type="submit" class="btn btn-primary">Editar</button>
+                                    </form>
+                                </td>
                                 <td>
                                     <form action="/admin/productos/borrar" method="post">
                                         <input type="hidden" name="txtID" value="{{ producto[0] }}">

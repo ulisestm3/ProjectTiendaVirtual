@@ -273,18 +273,8 @@ def admin_productos_guardar():
 @app.route('/admin/productos/borrar', methods=['POST'])
 def admin_productos_borrar():
     _id = request.form['txtID']
-    print(_id)
+    print(_id) 
     
-    conexion=dbconnection()
-    cursor=conexion.cursor()
-    cursor.execute("select imagen from productos where id=%s", (_id))
-    producto=cursor.fetchall()
-    conexion.commit()
-    print(producto)
-
-    if os.path.exists("templates/sitio/img/"+str(producto[0][0])):
-        os.unlink("templates/sitio/img/"+str(producto[0][0]))
-
     conexion=dbconnection()
     cursor=conexion.cursor()
     cursor.execute("delete from productos where id=%s", (_id))
@@ -330,29 +320,53 @@ def admin_productos_borraradv():
 
 @app.route('/admin/productos/actalizar', methods=['POST'])
 def admin_productos_actualizar():
-    _Id = request.form['txtId']
+    conexion = dbconnection()
+    cursor = conexion.cursor()
+    _id = request.form['txtId']
     _nombre = request.form['txtNombre']
-    _archivo = request.files['txtImagen']
+    _archivo1 = request.files['txtImagen1']
+    _archivo11 = request.form['txtImagen11']
+    _archivo2 = request.files['txtImagen2']
+    _archivo3 = request.files['txtImagen3']
+    _video = request.files['txtVideo']
     _precio = request.form['txtPrecio']
+    _descripcion = request.form['txtDescripcion']
 
-    
-    conexion=dbconnection()
-    cursor=conexion.cursor()
-    cursor.execute("select imagen from productos where id=%s", (_Id))
-    producto=cursor.fetchall()
-    conexion.commit()
-    print(producto)
-
-    if os.path.exists("templates/sitio/img/"+str(producto[0][0])):
-        os.unlink("templates/sitio/img/"+str(producto[0][0]))
+    nuevoNombre1 = None
+    nuevoNombre2 = None
+    nuevoNombre3 = None
+    nuevoNombrevideo = None
 
     tiempo= datetime.now()
     horaActual=tiempo.strftime('%Y-%m-%d_%H-%M-%S')
+    
+    if _archivo1.filename!="":
+        nuevoNombre1=horaActual+"_"+_archivo1.filename
+        _archivo1.save("templates/sitio/img/"+nuevoNombre1)
+    else:
+        nuevoNombre1 = _archivo11
 
-    if _archivo.filename!="":
-        nuevoNombre=horaActual+"_"+_archivo.filename
-        _archivo.save("templates/sitio/img/"+nuevoNombre)
 
+    if _archivo2.filename!="":
+        nuevoNombre2=horaActual+"_"+_archivo2.filename
+        _archivo2.save("templates/sitio/img/"+nuevoNombre2)
+
+
+    if _archivo3.filename!="":
+        nuevoNombre3=horaActual+"_"+_archivo3.filename
+        _archivo3.save("templates/sitio/img/"+nuevoNombre3)
+
+
+    if _video.filename!="":
+        nuevoNombrevideo=horaActual+"_"+_video.filename
+        _video.save("templates/sitio/video/"+nuevoNombrevideo)
+
+            
+    sql = "update productos set nombre=%s, imagen1=%s, imagen2=%s, imagen3=%s, video=%s, precio=%s, descripcion=%s where id=%s"
+    cursor.execute(sql, (_nombre, nuevoNombre1, nuevoNombre2, nuevoNombre3, nuevoNombrevideo, _precio,_descripcion, _id))
+    conexion.commit() 
+
+    '''
     if _nombre and _archivo and _precio:
         conexion= dbconnection()
         cursor=conexion.cursor()
@@ -360,8 +374,7 @@ def admin_productos_actualizar():
         data = (_nombre, nuevoNombre, _precio,_Id)
         cursor.execute(sql,data)
         conexion.commit()
-    
-
+    '''
     conexion=dbconnection()
     cursor=conexion.cursor()
     cursor.execute("select * from productos")
