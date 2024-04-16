@@ -325,7 +325,6 @@ def admin_productos_actualizar():
     _id = request.form['txtId']
     _nombre = request.form['txtNombre']
     _archivo1 = request.files['txtImagen1']
-    _archivo11 = request.form['txtImagen11']
     _archivo2 = request.files['txtImagen2']
     _archivo3 = request.files['txtImagen3']
     _video = request.files['txtVideo']
@@ -344,37 +343,35 @@ def admin_productos_actualizar():
         nuevoNombre1=horaActual+"_"+_archivo1.filename
         _archivo1.save("templates/sitio/img/"+nuevoNombre1)
     else:
-        nuevoNombre1 = _archivo11
+        nuevoNombre1= request.form['txtImagen11']
 
 
     if _archivo2.filename!="":
         nuevoNombre2=horaActual+"_"+_archivo2.filename
         _archivo2.save("templates/sitio/img/"+nuevoNombre2)
+    else:
+        nuevoNombre2 = request.form['txtImagen21']
 
 
     if _archivo3.filename!="":
         nuevoNombre3=horaActual+"_"+_archivo3.filename
         _archivo3.save("templates/sitio/img/"+nuevoNombre3)
+    else:
+        nuevoNombre3 = request.form['txtImagen31']
 
 
     if _video.filename!="":
         nuevoNombrevideo=horaActual+"_"+_video.filename
         _video.save("templates/sitio/video/"+nuevoNombrevideo)
+    else:
+        nuevoNombrevideo = request.form['txtVideo1']
 
             
     sql = "update productos set nombre=%s, imagen1=%s, imagen2=%s, imagen3=%s, video=%s, precio=%s, descripcion=%s where id=%s"
     cursor.execute(sql, (_nombre, nuevoNombre1, nuevoNombre2, nuevoNombre3, nuevoNombrevideo, _precio,_descripcion, _id))
     conexion.commit() 
 
-    '''
-    if _nombre and _archivo and _precio:
-        conexion= dbconnection()
-        cursor=conexion.cursor()
-        sql = "update productos set nombre = %s, imagen = %s, precio = %s where id= %s"
-        data = (_nombre, nuevoNombre, _precio,_Id)
-        cursor.execute(sql,data)
-        conexion.commit()
-    '''
+    
     conexion=dbconnection()
     cursor=conexion.cursor()
     cursor.execute("select * from productos")
