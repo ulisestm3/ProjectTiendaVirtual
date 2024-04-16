@@ -101,8 +101,8 @@ def admin_registro_usuario():
         cursor = conexion.cursor()
 
         # Verificar si el usuario o el correo electrónico ya existen
-        sql_select = "SELECT * FROM usuarios WHERE usuario = %s OR email = %s"
-        cursor.execute(sql_select, (_usuario, _email))
+        sql_select = "SELECT * FROM usuarios WHERE usuario = %s"
+        cursor.execute(sql_select, (_usuario,))
         usuario_existente = cursor.fetchone()
 
         if usuario_existente:

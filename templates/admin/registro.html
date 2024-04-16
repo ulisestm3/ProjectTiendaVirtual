@@ -41,7 +41,7 @@
 
     <!-- Contenido del formulario -->
     <div class="container mt-5">
-        <form action="/admin/registro/usuario" method="post" class="col-md-6 offset-md-3">
+        <form action="/admin/registro/usuario" method="post" class="col-md-6 offset-md-3" id="registroForm">
             <h2 class="text-center mb-4">Registro de Usuario</h2>
             
             <!-- Aquí se mostrará el mensaje de error si existe -->
@@ -93,28 +93,24 @@
             });
         });
 
-        
-    </script>
-    <script>
+        // Función para verificar el correo electrónico
         function verificarCorreo() {
             var email = document.getElementById('txtEmail').value;
             var regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            if (regex.test(email)) {
-                return true; // El correo electrónico es válido
+            if (email.trim() === '') {
+                return true; // El campo de correo electrónico está vacío
             } else {
-                return false; // El correo electrónico es inválido
+                return regex.test(email); // Verifica la estructura del correo electrónico
             }
         }
-    
+
         // Agregar un evento al enviar el formulario para verificar el correo electrónico
-        document.querySelector('form').addEventListener('submit', function(event) {
+        document.getElementById('registroForm').addEventListener('submit', function(event) {
             if (!verificarCorreo()) {
                 event.preventDefault(); // Evita que el formulario se envíe si el correo electrónico es inválido
                 alert('Por favor, ingrese un correo electrónico válido.');
             }
         });
     </script>
-    
 </body>
 </html>
-
