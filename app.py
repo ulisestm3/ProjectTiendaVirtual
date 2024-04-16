@@ -233,7 +233,12 @@ def admin_productos_guardar():
         _archivo3 = request.files['txtImagen3']
         _video = request.files['txtVideo']
         _precio = request.form['txtPrecio']
-        _descripcion = request.form['txtdescripcion']
+        _descripcion = request.form['txtDescripcion']
+
+        nuevoNombre1 = None
+        nuevoNombre2 = None
+        nuevoNombre3 = None
+        nuevoNombrevideo = None
 
         tiempo= datetime.now()
         horaActual=tiempo.strftime('%Y-%m-%d_%H-%M-%S')
