@@ -14,12 +14,29 @@
                                 <input type="text" class="form-control" name="txtNombre" id="txtNombre" placeholder="Escriba el nombre del producto">
                             </div>
                             <div class="mb-3">
-                                <label for="txtImagen" class="form-label">Imagen</label>
-                                <input type="file" class="form-control" name="txtImagen" id="txtImagen" placeholder="Seleccione de la imagen del producto">
+                                <label for="txtImagen1" class="form-label">Imagen</label>
+                                <input type="file" class="form-control" name="txtImagen1" id="txtImagen1" accept="image/*" placeholder="Seleccione la imagen del producto">
                             </div>
+                            
+                            <div class="mb-3">
+                                <label for="txtImagen2" class="form-label">Imagen</label>
+                                <input type="file" class="form-control" name="txtImagen2" id="txtImagen2" accept="image/*" placeholder="Seleccione de la imagen del producto">
+                            </div>
+                            <div class="mb-3">
+                                <label for="txtImagen3" class="form-label">Imagen</label>
+                                <input type="file" class="form-control" name="txtImagen3" id="txtImagen3" accept="image/*" placeholder="Seleccione de la imagen del producto">
+                            </div>
+                            <div class="mb-3">
+                                <label for="txtVideo" class="form-label">Video</label>
+                                <input type="file" class="form-control" name="txtVideo" id="txtVideo" accept="video/*" placeholder="Seleccione el video del producto">
+                            </div>                            
                             <div class="mb-3">
                                 <label for="txtPrecio" class="form-label">Precio</label>
                                 <input type="text" class="form-control" name="txtPrecio" id="txtPrecio" placeholder="Ingrese el precio del producto">
+                            </div>
+                            <div class="mb-3">
+                                <label for="txtDescripcion" class="form-label">Descripcion</label>
+                                <input type="text" class="form-control" name="txtDescripcion" id="txtDescripcion" placeholder="Ingrese la descripción del producto">
                             </div>
                             <button type="submit" class="btn btn-success">Agregar</button>
                         </form>
@@ -61,7 +78,7 @@
                                 <td>
                                     <img src="/img/{{ producto[2] }}" class="img-thumbnail" alt="{{ producto[2] }}" style="max-width: 100px;">
                                 </td>
-                                <td>{{ producto[3] }}</td>
+                                <td>{{ producto[6] }}</td>
                                 <td>
                                     <form action="/admin/productos/borrar" method="post">
                                         <input type="hidden" name="txtID" value="{{ producto[0] }}">

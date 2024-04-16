@@ -20,6 +20,10 @@ def imagenes(imagen):
     print(imagen)
     return send_from_directory(os.path.join('templates/sitio/img'),imagen)
 
+@app.route('/video/<video>')
+def videos(video):
+    print(video)
+    return send_from_directory(os.path.join('templates/sitio/video'),video)
 
 # Rutas para sitio
 @app.route('/')
@@ -224,23 +228,35 @@ def admin_productos_guardar():
         conexion = dbconnection()
         cursor = conexion.cursor()
         _nombre = request.form['txtNombre']
-        _archivo = request.files['txtImagen']
+        _archivo1 = request.files['txtImagen1']
+        _archivo2 = request.files['txtImagen2']
+        _archivo3 = request.files['txtImagen3']
+        _video = request.files['txtVideo']
         _precio = request.form['txtPrecio']
+        _descripcion = request.form['txtdescripcion']
 
         tiempo= datetime.now()
         horaActual=tiempo.strftime('%Y-%m-%d_%H-%M-%S')
+        
+        if _archivo1.filename!="":
+            nuevoNombre1=horaActual+"_"+_archivo1.filename
+            _archivo1.save("templates/sitio/img/"+nuevoNombre1)
 
-        if _archivo.filename!="":
-            nuevoNombre=horaActual+"_"+_archivo.filename
-            _archivo.save("templates/sitio/img/"+nuevoNombre)
+        if _archivo2.filename!="":
+            nuevoNombre2=horaActual+"_"+_archivo2.filename
+            _archivo2.save("templates/sitio/img/"+nuevoNombre2)
+
+        if _archivo3.filename!="":
+            nuevoNombre3=horaActual+"_"+_archivo3.filename
+            _archivo3.save("templates/sitio/img/"+nuevoNombre3)
+
+        if _video.filename!="":
+            nuevoNombrevideo=horaActual+"_"+_video.filename
+            _video.save("templates/sitio/video/"+nuevoNombrevideo)
                 
-        sql = "INSERT INTO productos (nombre, imagen, precio) VALUES (%s, %s, %s)"
-        cursor.execute(sql, (_nombre, nuevoNombre, _precio))
-        conexion.commit()
-
-        print(_nombre)
-        print(_archivo)
-        print(_precio)
+        sql = "INSERT INTO productos (nombre, imagen1, imagen2, imagen3, video, precio, descripcion) VALUES (%s, %s, %s, %s, %s, %s, %s)"
+        cursor.execute(sql, (_nombre, nuevoNombre1, nuevoNombre2, nuevoNombre3, nuevoNombrevideo, _precio,_descripcion))
+        conexion.commit() 
 
     except pymysql.Error as e:
         print("Error de MySQL:", e)
