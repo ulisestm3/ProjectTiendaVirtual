@@ -232,13 +232,14 @@ def admin_productos_guardar():
         _archivo2 = request.files['txtImagen2']
         _archivo3 = request.files['txtImagen3']
         _video = request.files['txtVideo']
+        _moneda = request.form['txtMoneda']
         _precio = request.form['txtPrecio']
         _descripcion = request.form['txtDescripcion']
 
-        nuevoNombre1 = None
-        nuevoNombre2 = None
-        nuevoNombre3 = None
-        nuevoNombrevideo = None
+        nuevoNombre1 = ""
+        nuevoNombre2 = ""
+        nuevoNombre3 = ""
+        nuevoNombrevideo =""
 
         tiempo= datetime.now()
         horaActual=tiempo.strftime('%Y-%m-%d_%H-%M-%S')
@@ -259,8 +260,8 @@ def admin_productos_guardar():
             nuevoNombrevideo=horaActual+"_"+_video.filename
             _video.save("templates/sitio/video/"+nuevoNombrevideo)
                 
-        sql = "INSERT INTO productos (nombre, imagen1, imagen2, imagen3, video, precio, descripcion) VALUES (%s, %s, %s, %s, %s, %s, %s)"
-        cursor.execute(sql, (_nombre, nuevoNombre1, nuevoNombre2, nuevoNombre3, nuevoNombrevideo, _precio,_descripcion))
+        sql = "INSERT INTO productos (nombre, imagen1, imagen2, imagen3, video, precio, descripcion, moneda) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)"
+        cursor.execute(sql, (_nombre, nuevoNombre1, nuevoNombre2, nuevoNombre3, nuevoNombrevideo, _precio,_descripcion, _moneda))
         conexion.commit() 
 
     except pymysql.Error as e:
@@ -329,13 +330,14 @@ def admin_productos_actualizar():
     _archivo2 = request.files['txtImagen2']
     _archivo3 = request.files['txtImagen3']
     _video = request.files['txtVideo']
+    _moneda = request.form['txtMoneda']
     _precio = request.form['txtPrecio']
     _descripcion = request.form['txtDescripcion']
 
-    nuevoNombre1 = None
-    nuevoNombre2 = None
-    nuevoNombre3 = None
-    nuevoNombrevideo = None
+    nuevoNombre1 = ""
+    nuevoNombre2 = ""
+    nuevoNombre3 = ""
+    nuevoNombrevideo = ""
 
     tiempo= datetime.now()
     horaActual=tiempo.strftime('%Y-%m-%d_%H-%M-%S')
@@ -368,8 +370,8 @@ def admin_productos_actualizar():
         nuevoNombrevideo = request.form['txtVideo1']
 
             
-    sql = "update productos set nombre=%s, imagen1=%s, imagen2=%s, imagen3=%s, video=%s, precio=%s, descripcion=%s where id=%s"
-    cursor.execute(sql, (_nombre, nuevoNombre1, nuevoNombre2, nuevoNombre3, nuevoNombrevideo, _precio,_descripcion, _id))
+    sql = "update productos set nombre=%s, imagen1=%s, imagen2=%s, imagen3=%s, video=%s, precio=%s, descripcion=%s, moneda=%s where id=%s"
+    cursor.execute(sql, (_nombre, nuevoNombre1, nuevoNombre2, nuevoNombre3, nuevoNombrevideo, _precio,_descripcion,_moneda, _id))
     conexion.commit() 
 
     
