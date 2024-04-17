@@ -159,7 +159,7 @@ def admin_productos_leer():
         print("Error de MySQL:", e)
     return render_template('admin/productos.html', productos=productos)
 
-@app.route('/admin/editar', methods=['POST'])
+@app.route('/admin/editar')
 def admin_productos_editar():
     conexion=dbconnection()
     cursor=conexion.cursor()
@@ -268,7 +268,7 @@ def admin_productos_guardar():
     finally:
         conexion.close()
 
-    return redirect('/admin/productos')
+    return redirect('/admin/editar')
 
 @app.route('/admin/productos/borrar', methods=['POST'])
 def admin_productos_borrar():
@@ -277,10 +277,11 @@ def admin_productos_borrar():
     
     conexion=dbconnection()
     cursor=conexion.cursor()
-    cursor.execute("delete from productos where id=%s", (_id))
+    sql = 'delete from productos where id=%s'
+    cursor.execute(sql, _id)
     conexion.commit()
 
-    return redirect('/admin/productos')
+    return redirect('/admin/editar')
 
 @app.route('/admin/productos/borraradv', methods=['POST'])
 def admin_productos_borraradv():

@@ -6,7 +6,7 @@
     <div class="container">
         <div class="card shadow">
             <div class="card-body">
-                <form action="/admin/productos/guardaradv" method="post" enctype="multipart/form-data">
+                <form action="/admin/productos/guardar" method="post" enctype="multipart/form-data">
                     <div class="row mb-3">
                         <div class="mb-3">
                             <label for="txtNombre" class="form-label">Nombre (*)</label>
@@ -70,7 +70,7 @@
                             <td>{{p.precio}}</td>
                             <td><button class="btn btn-primary btn-sm" id="btn-edit{{p.id}}" data-bs-toggle="modal" data-bs-target="#modal{{p.id}}">Editar</button></td>
                             
-                            <td><form action="/admin/productos/borraradv" method="post">
+                            <td><form action="/admin/productos/borrar" method="post">
                                 <input type="hidden" name="txtID" value="{{p.id}}">
                                 <button type="submit" class="btn btn-danger">Eliminar</button>
                             </form></td>
