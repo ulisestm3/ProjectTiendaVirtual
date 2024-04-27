@@ -6,19 +6,44 @@
     <div class="container">
         <div class="card shadow">
             <div class="card-body">
-                <form action="/admin/productos/guardaradv" method="post" enctype="multipart/form-data">
+                <form action="/admin/productos/guardar" method="post" enctype="multipart/form-data">
                     <div class="row mb-3">
-                        <div class="col">
-                            <label>Nombre</label>
-                            <input type="text" class="form-control mb-3" name="txtNombre">
+                        <div class="mb-3">
+                            <label for="txtNombre" class="form-label">Nombre (*)</label>
+                            <input type="text" class="form-control" name="txtNombre" id="txtNombre" placeholder="Escriba el nombre del producto" required>
                         </div>
-                        <div class="col">
-                            <label>Imagen</label>
-                            <input type="file" class="form-control mb-3" name="txtImagen">
+                        <div class="mb-3">
+                            <label for="txtImagen1" class="form-label">Imagen 1 (*)</label>
+                            <input type="file" class="form-control" name="txtImagen1" id="txtImagen1" accept="image/*" placeholder="Seleccione la imagen del producto" required>
                         </div>
-                        <div class="col">
-                            <label>Precio</label>
-                            <input type="text" class="form-control mb-3" name="txtPrecio">
+                        
+                        <div class="mb-3">
+                            <label for="txtImagen2" class="form-label">Imagen 2</label>
+                            <input type="file" class="form-control" name="txtImagen2" id="txtImagen2" accept="image/*" placeholder="Seleccione de la imagen del producto">
+                        </div>
+                        <div class="mb-3">
+                            <label for="txtImagen3" class="form-label">Imagen 3</label>
+                            <input type="file" class="form-control" name="txtImagen3" id="txtImagen3" accept="image/*" placeholder="Seleccione de la imagen del producto">
+                        </div>
+                        <div class="mb-3">
+                            <label for="txtVideo" class="form-label">Video</label>
+                            <input type="file" class="form-control" name="txtVideo" id="txtVideo" accept="video/*" placeholder="Seleccione el video del producto">
+                        </div>
+                        <div class="mb-3">
+                            <label for="txtMoneda" class="form-label">Moneda (*)</label>
+                            <select class="form-select" name="txtMoneda" id="txtMoneda" required>
+                                <option value="U$">USD</option>
+                                <option value="C$">COR</option>                              
+                                <!-- Agrega más opciones de moneda según sea necesario -->
+                            </select>
+                        </div>                           
+                        <div class="mb-3">
+                            <label for="txtPrecio" class="form-label">Precio (*)</label>
+                            <input type="text" class="form-control" name="txtPrecio" id="txtPrecio" placeholder="Ingrese el precio del producto" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="txtDescripcion" class="form-label">Descripcion (*)</label>
+                            <input type="text" class="form-control" name="txtDescripcion" id="txtDescripcion" placeholder="Ingrese la descripción del producto" required>
                         </div>
                         <div class="col">
                             <button class="btn btn-primary mb-3 mt-4" type="submit">Guardar</button>
@@ -38,6 +63,7 @@
                             <th scope="col">ID</th>
                             <th scope="col">Nombre</th>
                             <th scope="col">Imagen</th>
+                            <th scope="col">Moneda</th>
                             <th scope="col">Precio</th>
                             <th scope="col">Editar</th>
                             <th scope="col">Borrar</th>
@@ -49,11 +75,12 @@
                         <tr>
                             <td>{{p.id}}</td>
                             <td>{{p.nombre}}</td>
-                            <td><img src="/img/{{p.imagen}}" class="img-thumbnail" alt="{{p.imagen}}" style="max-width: 100px;"></td>
+                            <td><img src="/img/{{p.imagen1}}" class="img-thumbnail" alt="{{p.imagen1}}" style="max-width: 100px;"></td>
+                            <td>{{p.moneda}}</td>
                             <td>{{p.precio}}</td>
                             <td><button class="btn btn-primary btn-sm" id="btn-edit{{p.id}}" data-bs-toggle="modal" data-bs-target="#modal{{p.id}}">Editar</button></td>
                             
-                            <td><form action="/admin/productos/borraradv" method="post">
+                            <td><form action="/admin/productos/borrar" method="post">
                                 <input type="hidden" name="txtID" value="{{p.id}}">
                                 <button type="submit" class="btn btn-danger">Eliminar</button>
                             </form></td>
@@ -70,14 +97,36 @@
                                 </div>
                                 <div class="modal-body">
                                     <form action="/admin/productos/actalizar" method="post" enctype="multipart/form-data">
-                                        <label>ID</label>
-                                        <input type="text" class="form-control mb-3" name="txtId" value="{{p.id}}">
+                                        <label hidden>ID</label>
+                                        <input hidden type="text" class="form-control mb-3" name="txtId" value="{{p.id}}" >
                                         <label>Nombre</label>
                                         <input type="text" class="form-control mb-3" name="txtNombre" value="{{p.nombre}}">
-                                        <label>Imagen</label>
-                                        <input type="file" class="form-control mb-3" name="txtImagen" value="{{p.imagen}}">
-                                        <label>Password</label>
+                                        <label>Imagen1</label>
+                                        <input type="file" class="form-control mb-3" name="txtImagen1" value="" accept="image/*">
+                                        <label hidden>Imagen11</label>
+                                        <input type="text" class="form-control mb-3" name="txtImagen11" value="{{p.imagen1}}" hidden>
+                                        <label>Imagen2</label>
+                                        <input type="file" class="form-control mb-3" name="txtImagen2" value="" accept="image/*">
+                                        <label hidden>Imagen21</label>
+                                        <input type="text" class="form-control mb-3" name="txtImagen21" value="{{p.imagen2}}" hidden>
+                                        <label>Imagen3</label>
+                                        <input type="file" class="form-control mb-3" name="txtImagen3" value="" accept="image/*">
+                                        <label hidden>Imagen31</label>
+                                        <input type="text" class="form-control mb-3" name="txtImagen31" value="{{p.imagen3}}" hidden>
+                                        <label>Video</label>
+                                        <input type="file" class="form-control mb-3" name="txtVideo" value="" accept="video/*">
+                                        <label hidden>Video1</label>
+                                        <input type="text" class="form-control mb-3" name="txtVideo1" value="{{p.video}}" hidden>
+                                        <label for="txtMoneda" class="form-label">Moneda (*)</label>
+                                            <select class="form-select" name="txtMoneda" id="txtMoneda" required>
+                                                <option value="U$">USD</option>
+                                                <option value="C$">COR</option>                              
+                                                <!-- Agrega más opciones de moneda según sea necesario -->
+                                            </select>
+                                        <label>Descripción</label>
                                         <input type="text" class="form-control mb-3" name="txtPrecio" value="{{p.precio}}">
+                                        <label>Descripción</label>
+                                        <input type="text" class="form-control mb-3" name="txtDescripcion" value="{{p.descripcion}}">
                                   
                                 </div>
                                 <div class="modal-footer">

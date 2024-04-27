@@ -20,6 +20,10 @@ def imagenes(imagen):
     print(imagen)
     return send_from_directory(os.path.join('templates/sitio/img'),imagen)
 
+@app.route('/video/<video>')
+def videos(video):
+    print(video)
+    return send_from_directory(os.path.join('templates/sitio/video'),video)
 
 # Rutas para sitio
 @app.route('/')
@@ -36,6 +40,18 @@ def productos():
     conexion.commit()    
     
     return render_template('sitio/productos.html', productos=productos)
+
+@app.route('/detalleproductos', methods=['POST'])
+def detalleproductos():
+    _id = request.form['txtID']
+    conexion = dbconnection()
+    cursor=conexion.cursor()
+    sql = 'SELECT * FROM productos WHERE id= %s'
+    cursor.execute(sql, _id)
+    productos=cursor.fetchall()
+    conexion.commit()
+
+    return render_template('sitio/detalleproductos.html', productos=productos)
 
 @app.route('/nosotros')
 def nosotros():
@@ -107,7 +123,7 @@ def admin_registro_usuario():
 
         if usuario_existente:
             # Si el usuario o el correo electrónico ya existen, mostrar un mensaje en el formulario de registro
-            return render_template('admin/registro.html', mensaje='El usuario o el correo electrónico ya existen.')
+            return render_template('admin/registro.html', mensaje='El usuario ya existe.')
 
         # Si el usuario y el correo electrónico no existen, insertar los datos en la base de datos
         sql_insert = "INSERT INTO usuarios (usuario, password, nombre, apellido, email) VALUES (%s, %s, %s, %s, %s)"
@@ -143,7 +159,7 @@ def admin_productos_leer():
         print("Error de MySQL:", e)
     return render_template('admin/productos.html', productos=productos)
 
-@app.route('/admin/editar', methods=['POST'])
+@app.route('/admin/editar')
 def admin_productos_editar():
     conexion=dbconnection()
     cursor=conexion.cursor()
@@ -212,52 +228,61 @@ def admin_productos_guardar():
         conexion = dbconnection()
         cursor = conexion.cursor()
         _nombre = request.form['txtNombre']
-        _archivo = request.files['txtImagen']
+        _archivo1 = request.files['txtImagen1']
+        _archivo2 = request.files['txtImagen2']
+        _archivo3 = request.files['txtImagen3']
+        _video = request.files['txtVideo']
+        _moneda = request.form['txtMoneda']
         _precio = request.form['txtPrecio']
+        _descripcion = request.form['txtDescripcion']
+
+        nuevoNombre1 = ""
+        nuevoNombre2 = ""
+        nuevoNombre3 = ""
+        nuevoNombrevideo =""
 
         tiempo= datetime.now()
         horaActual=tiempo.strftime('%Y-%m-%d_%H-%M-%S')
+        
+        if _archivo1.filename!="":
+            nuevoNombre1=horaActual+"_"+_archivo1.filename
+            _archivo1.save("templates/sitio/img/"+nuevoNombre1)
 
-        if _archivo.filename!="":
-            nuevoNombre=horaActual+"_"+_archivo.filename
-            _archivo.save("templates/sitio/img/"+nuevoNombre)
+        if _archivo2.filename!="":
+            nuevoNombre2=horaActual+"_"+_archivo2.filename
+            _archivo2.save("templates/sitio/img/"+nuevoNombre2)
+
+        if _archivo3.filename!="":
+            nuevoNombre3=horaActual+"_"+_archivo3.filename
+            _archivo3.save("templates/sitio/img/"+nuevoNombre3)
+
+        if _video.filename!="":
+            nuevoNombrevideo=horaActual+"_"+_video.filename
+            _video.save("templates/sitio/video/"+nuevoNombrevideo)
                 
-        sql = "INSERT INTO productos (nombre, imagen, precio) VALUES (%s, %s, %s)"
-        cursor.execute(sql, (_nombre, nuevoNombre, _precio))
-        conexion.commit()
-
-        print(_nombre)
-        print(_archivo)
-        print(_precio)
+        sql = "INSERT INTO productos (nombre, imagen1, imagen2, imagen3, video, precio, descripcion, moneda) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)"
+        cursor.execute(sql, (_nombre, nuevoNombre1, nuevoNombre2, nuevoNombre3, nuevoNombrevideo, _precio,_descripcion, _moneda))
+        conexion.commit() 
 
     except pymysql.Error as e:
         print("Error de MySQL:", e)
     finally:
         conexion.close()
 
-    return redirect('/admin/productos')
+    return redirect('/admin/editar')
 
 @app.route('/admin/productos/borrar', methods=['POST'])
 def admin_productos_borrar():
     _id = request.form['txtID']
-    print(_id)
+    print(_id) 
     
     conexion=dbconnection()
     cursor=conexion.cursor()
-    cursor.execute("select imagen from productos where id=%s", (_id))
-    producto=cursor.fetchall()
-    conexion.commit()
-    print(producto)
-
-    if os.path.exists("templates/sitio/img/"+str(producto[0][0])):
-        os.unlink("templates/sitio/img/"+str(producto[0][0]))
-
-    conexion=dbconnection()
-    cursor=conexion.cursor()
-    cursor.execute("delete from productos where id=%s", (_id))
+    sql = 'delete from productos where id=%s'
+    cursor.execute(sql, _id)
     conexion.commit()
 
-    return redirect('/admin/productos')
+    return redirect('/admin/editar')
 
 @app.route('/admin/productos/borraradv', methods=['POST'])
 def admin_productos_borraradv():
@@ -297,38 +322,59 @@ def admin_productos_borraradv():
 
 @app.route('/admin/productos/actalizar', methods=['POST'])
 def admin_productos_actualizar():
-    _Id = request.form['txtId']
+    conexion = dbconnection()
+    cursor = conexion.cursor()
+    _id = request.form['txtId']
     _nombre = request.form['txtNombre']
-    _archivo = request.files['txtImagen']
+    _archivo1 = request.files['txtImagen1']
+    _archivo2 = request.files['txtImagen2']
+    _archivo3 = request.files['txtImagen3']
+    _video = request.files['txtVideo']
+    _moneda = request.form['txtMoneda']
     _precio = request.form['txtPrecio']
+    _descripcion = request.form['txtDescripcion']
 
-    
-    conexion=dbconnection()
-    cursor=conexion.cursor()
-    cursor.execute("select imagen from productos where id=%s", (_Id))
-    producto=cursor.fetchall()
-    conexion.commit()
-    print(producto)
-
-    if os.path.exists("templates/sitio/img/"+str(producto[0][0])):
-        os.unlink("templates/sitio/img/"+str(producto[0][0]))
+    nuevoNombre1 = ""
+    nuevoNombre2 = ""
+    nuevoNombre3 = ""
+    nuevoNombrevideo = ""
 
     tiempo= datetime.now()
     horaActual=tiempo.strftime('%Y-%m-%d_%H-%M-%S')
-
-    if _archivo.filename!="":
-        nuevoNombre=horaActual+"_"+_archivo.filename
-        _archivo.save("templates/sitio/img/"+nuevoNombre)
-
-    if _nombre and _archivo and _precio:
-        conexion= dbconnection()
-        cursor=conexion.cursor()
-        sql = "update productos set nombre = %s, imagen = %s, precio = %s where id= %s"
-        data = (_nombre, nuevoNombre, _precio,_Id)
-        cursor.execute(sql,data)
-        conexion.commit()
     
+    if _archivo1.filename!="":
+        nuevoNombre1=horaActual+"_"+_archivo1.filename
+        _archivo1.save("templates/sitio/img/"+nuevoNombre1)
+    else:
+        nuevoNombre1= request.form['txtImagen11']
 
+
+    if _archivo2.filename!="":
+        nuevoNombre2=horaActual+"_"+_archivo2.filename
+        _archivo2.save("templates/sitio/img/"+nuevoNombre2)
+    else:
+        nuevoNombre2 = request.form['txtImagen21']
+
+
+    if _archivo3.filename!="":
+        nuevoNombre3=horaActual+"_"+_archivo3.filename
+        _archivo3.save("templates/sitio/img/"+nuevoNombre3)
+    else:
+        nuevoNombre3 = request.form['txtImagen31']
+
+
+    if _video.filename!="":
+        nuevoNombrevideo=horaActual+"_"+_video.filename
+        _video.save("templates/sitio/video/"+nuevoNombrevideo)
+    else:
+        nuevoNombrevideo = request.form['txtVideo1']
+
+            
+    sql = "update productos set nombre=%s, imagen1=%s, imagen2=%s, imagen3=%s, video=%s, precio=%s, descripcion=%s, moneda=%s where id=%s"
+    cursor.execute(sql, (_nombre, nuevoNombre1, nuevoNombre2, nuevoNombre3, nuevoNombrevideo, _precio,_descripcion,_moneda, _id))
+    conexion.commit() 
+
+    
     conexion=dbconnection()
     cursor=conexion.cursor()
     cursor.execute("select * from productos")
