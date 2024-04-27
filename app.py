@@ -123,7 +123,7 @@ def admin_registro_usuario():
 
         if usuario_existente:
             # Si el usuario o el correo electrónico ya existen, mostrar un mensaje en el formulario de registro
-            return render_template('admin/registro.html', mensaje='El usuario o el correo electrónico ya existen.')
+            return render_template('admin/registro.html', mensaje='El usuario ya existe.')
 
         # Si el usuario y el correo electrónico no existen, insertar los datos en la base de datos
         sql_insert = "INSERT INTO usuarios (usuario, password, nombre, apellido, email) VALUES (%s, %s, %s, %s, %s)"
