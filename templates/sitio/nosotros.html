@@ -1,17 +1,83 @@
-{%include 'sitio/cabecera.html' %}
-<div class="row align-items-md-stretch">
-    <div class="col-md-12">
-        <div class="h-100 p-5 text-white bg-primary border rounded-3" style="font-size: 1.2em; text-align: justify;">
-                        <h2>Nosotros</h2>
-                    </br>
-                    <p>
-                        <span style="font-size: 1.3em;">
-                            Nica Shangri-La busca ofrecer una experiencia de compra más cercana y personalizada para los usuarios nicaragüenses. Desde la venta de artesanías tradicionales hasta productos modernos y tecnológicos, la plataforma aspira a ser un escaparate completo de la diversidad de la oferta local. Además, al asumir la logística de entrega, Nica Shangri-La no solo simplifica el proceso para los usuarios, sino que también contribuye al desarrollo de una cadena de suministro eficiente dentro del país, potenciando así la economía local y fomentando el emprendimiento en Nicaragua.
-                        </span>
-                    </p>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Tienda en línea Nica Shangri-La, una plataforma que conecta a compradores y vendedores locales en Nicaragua.">
+    <title>NicaShangrila</title>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous" />
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body class="d-flex flex-column min-vh-100"> <!-- Flexbox para asegurar que el footer esté al fondo -->
+    <!-- Header Section -->
+    <header>
+        <div class="container text-center py-4">
+            <h1>Tienda en Línea</h1>
+            <p>Proyecto universitario</p>
+        </div>
+        
+        <!-- Navigation Bar -->
+        <nav class="navbar navbar-expand-lg navbar-light bg-light">
+            <div class="container">
+                <a class="navbar-brand" href="/">Nica Shangri-La</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                    aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav ms-auto">
+                        <li class="nav-item">
+                            <a class="nav-link {% if request.path == '/' %}active{% endif %}" href="/">Inicio</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {% if request.path == '/nosotros' %}active{% endif %}" href="/nosotros">Nosotros</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {% if request.path == '/productos' %}active{% endif %}" href="/productos">Productos</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {% if request.path == '/admin/login' %}active{% endif %}" href="/admin/login">Login</a>
+                        </li>
+                    </ul>
                 </div>
-                    </div>
-                </div>  
             </div>
-            
-{%include 'sitio/pie.html' %}
+        </nav>
+    </header>
+
+   <!-- Main Content -->
+   <main class="container my-5">
+
+    <div class="row align-items-md-stretch">
+        <div class="col-md-12">
+            <div class="h-100 p-5 text-white bg-primary border rounded-3 welcome-section">
+                <h2>Nosotros</h2>
+                <p>
+                    Nica Shangri-La busca ofrecer una experiencia de compra más cercana y personalizada para los usuarios nicaragüenses. Desde la venta de artesanías tradicionales hasta productos modernos y tecnológicos, la plataforma aspira a ser un escaparate completo de la diversidad de la oferta local.
+                </p>
+                <p>
+                    Además, al asumir la logística de entrega, Nica Shangri-La no solo simplifica el proceso para los usuarios, sino que también contribuye al desarrollo de una cadena de suministro eficiente dentro del país, potenciando así la economía local y fomentando el emprendimiento en Nicaragua.
+                </p>
+            </div>
+        </div>
+    </div>
+</main>
+    
+
+    <!-- Footer Section -->
+    <footer class="text-white py-3 mt-auto">
+        <div class="container text-center">
+            <p>Email: ulisestm3@gmail.com</p>
+            <p>Web creada por Ulises Zuniga</p>
+            <p>&copy; Univalle 2024 - 220100164</p>
+        </div>
+    </footer>
+
+    <!-- Bootstrap Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

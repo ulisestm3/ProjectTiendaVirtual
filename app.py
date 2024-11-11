@@ -1,9 +1,9 @@
 from flask import Flask, render_template, request, redirect,session, send_from_directory
+from flask_login import LoginManager, login_user, logout_user, login_required
 from datetime import datetime
 import config
 import pymysql
 import os
-
 
 app = Flask(__name__)
 
@@ -13,8 +13,7 @@ app.secret_key = config.HEX_SEC_KEY
 def dbconnection():
     return pymysql.connect(host= config.MSQL_HOST, user= config.MSQL_USER, password= config.MSQL_PASSWORD, database= config.MSQL_DB)
 
-
-#Rutas para cargar imagenes
+#Ruta para cargar imagenes y videos
 @app.route('/img/<imagen>')
 def imagenes(imagen):
     print(imagen)
@@ -67,9 +66,17 @@ def pago_exitoso():
 
 # Rutas para admin
 @app.route('/admin')
-def admin_index():
-    return render_template('admin/index.html')
+def index_productos():
+    conexion = dbconnection()
+    cursor=conexion.cursor()
+    cursor.execute("SELECT * FROM productos")
+    productos=cursor.fetchall()
+    conexion.commit()    
+    return render_template('admin/index.html', productos=productos)
 
+@app.route('/admin/nosotros')
+def admin_nosotros():
+    return render_template('admin/nosotros.html')
 
 @app.route('/admin/login')
 def admin_login():
@@ -140,8 +147,6 @@ def admin_registro_usuario():
             conexion.close()
 
     return render_template('admin/login.html')
-
-
 
 
 @app.route('/admin/productos')

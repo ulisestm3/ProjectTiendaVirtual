@@ -1,152 +1,216 @@
-{%include 'admin/cabecera.html' %}
-<body>
+<!DOCTYPE html>
+<html lang="es">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="description" content="Tienda en línea Nica Shangri-La, una plataforma que conecta a compradores y vendedores locales en Nicaragua.">
+        <title>NicaShangrila</title>
 
-    <h1 class="text-center mt-5 mb-5 text-primary">NICA SHANGRI-LA<br>CRUD del Administrador</h1>
+        <!-- Bootstrap CSS -->
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous" />
 
-    <div class="container">
-        <div class="card shadow">
-            <div class="card-body">
-                <form action="/admin/productos/guardar" method="post" enctype="multipart/form-data">
-                    <div class="row mb-3">
-                        <div class="mb-3">
-                            <label for="txtNombre" class="form-label">Nombre (*)</label>
-                            <input type="text" class="form-control" name="txtNombre" id="txtNombre" placeholder="Escriba el nombre del producto" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="txtImagen1" class="form-label">Imagen 1 (*)</label>
-                            <input type="file" class="form-control" name="txtImagen1" id="txtImagen1" accept="image/*" placeholder="Seleccione la imagen del producto" required>
-                        </div>
-                        
-                        <div class="mb-3">
-                            <label for="txtImagen2" class="form-label">Imagen 2</label>
-                            <input type="file" class="form-control" name="txtImagen2" id="txtImagen2" accept="image/*" placeholder="Seleccione de la imagen del producto">
-                        </div>
-                        <div class="mb-3">
-                            <label for="txtImagen3" class="form-label">Imagen 3</label>
-                            <input type="file" class="form-control" name="txtImagen3" id="txtImagen3" accept="image/*" placeholder="Seleccione de la imagen del producto">
-                        </div>
-                        <div class="mb-3">
-                            <label for="txtVideo" class="form-label">Video</label>
-                            <input type="file" class="form-control" name="txtVideo" id="txtVideo" accept="video/*" placeholder="Seleccione el video del producto">
-                        </div>
-                        <div class="mb-3">
-                            <label for="txtMoneda" class="form-label">Moneda (*)</label>
-                            <select class="form-select" name="txtMoneda" id="txtMoneda" required>
-                                <option value="U$">USD</option>
-                                <option value="C$">COR</option>                              
-                                <!-- Agrega más opciones de moneda según sea necesario -->
-                            </select>
-                        </div>                           
-                        <div class="mb-3">
-                            <label for="txtPrecio" class="form-label">Precio (*)</label>
-                            <input type="text" class="form-control" name="txtPrecio" id="txtPrecio" placeholder="Ingrese el precio del producto" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="txtDescripcion" class="form-label">Descripcion (*)</label>
-                            <input type="text" class="form-control" name="txtDescripcion" id="txtDescripcion" placeholder="Ingrese la descripción del producto" required>
-                        </div>
-                        <div class="col">
-                            <button class="btn btn-primary mb-3 mt-4" type="submit">Guardar</button>
-                        </div>
-                        </div>
-                        
+        <!-- Custom CSS -->
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+
+    </head>
+    <body class="d-flex flex-column min-vh-100"> <!-- Flexbox para asegurar que el footer esté al fondo -->
+        <!-- Header Section -->
+        <header>
+            <div class="container text-center py-4">
+                <h1>Tienda en Línea</h1>
+                <p>Proyecto universitario</p>
+            </div>
+            
+            <!-- Navigation Bar -->
+            <nav class="navbar navbar-expand-lg navbar-light bg-light">
+                <div class="container">
+                    <a class="navbar-brand" href="/admin">Nica Shangri-La</a>
+                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                        aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+                    <div class="collapse navbar-collapse" id="navbarNav">
+                        <ul class="navbar-nav ms-auto">
+                            <li class="nav-item">
+                                <!-- Usa '/admin/index' para la URL de inicio de administrador -->
+                                <a class="nav-link {% if request.path == '/admin' %}active{% endif %}" href="/admin">Inicio</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link {% if request.path == '/admin/nosotros' %}active{% endif %}" href="/admin/nosotros">Nosotros</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link {% if request.path == '/admin/editar' %}active{% endif %}" href="/admin/editar">Mis Productos</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link {% if request.path == '/admin/login' %}active{% endif %}" href="/admin/login">Salir</a>
+                            </li>
+                        </ul>
                     </div>
+                </div>
+            </nav>
 
-                </form>
+        </header>
 
+        <!-- Main Content -->
+        <main class="container my-5">
+            <h1 class="text-center mt-5 mb-5 text-primary">NICA SHANGRI-LA<br>CRUD del Administrador</h1>
 
-                <!-- Tabla -->
-
-                <table class="table table-bordered">
-                    <thead>
-                        <tr>
-                            <th scope="col">ID</th>
-                            <th scope="col">Nombre</th>
-                            <th scope="col">Imagen</th>
-                            <th scope="col">Moneda</th>
-                            <th scope="col">Precio</th>
-                            <th scope="col">Editar</th>
-                            <th scope="col">Borrar</th>
-                        </tr>
-                    </thead>
-                
-                <tbody>
-                    {% for p in producto %}
-                        <tr>
-                            <td>{{p.id}}</td>
-                            <td>{{p.nombre}}</td>
-                            <td><img src="/img/{{p.imagen1}}" class="img-thumbnail" alt="{{p.imagen1}}" style="max-width: 100px;"></td>
-                            <td>{{p.moneda}}</td>
-                            <td>{{p.precio}}</td>
-                            <td><button class="btn btn-primary btn-sm" id="btn-edit{{p.id}}" data-bs-toggle="modal" data-bs-target="#modal{{p.id}}">Editar</button></td>
-                            
-                            <td><form action="/admin/productos/borrar" method="post">
-                                <input type="hidden" name="txtID" value="{{p.id}}">
-                                <button type="submit" class="btn btn-danger">Eliminar</button>
-                            </form></td>
-                        </tr>
-
-                        <!-- modal -->
-
-                        <div class="modal fade" id="modal{{p.id}}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-                            <div class="modal-dialog">
-                              <div class="modal-content">
-                                <div class="modal-header">
-                                  <h1 class="modal-title fs-5" id="exampleModalLabel">{{p.nombre}}</h1>
-                                  <button type="submit" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                </div>
-                                <div class="modal-body">
-                                    <form action="/admin/productos/actalizar" method="post" enctype="multipart/form-data">
-                                        <label hidden>ID</label>
-                                        <input hidden type="text" class="form-control mb-3" name="txtId" value="{{p.id}}" >
-                                        <label>Nombre</label>
-                                        <input type="text" class="form-control mb-3" name="txtNombre" value="{{p.nombre}}">
-                                        <label>Imagen1</label>
-                                        <input type="file" class="form-control mb-3" name="txtImagen1" value="" accept="image/*">
-                                        <label hidden>Imagen11</label>
-                                        <input type="text" class="form-control mb-3" name="txtImagen11" value="{{p.imagen1}}" hidden>
-                                        <label>Imagen2</label>
-                                        <input type="file" class="form-control mb-3" name="txtImagen2" value="" accept="image/*">
-                                        <label hidden>Imagen21</label>
-                                        <input type="text" class="form-control mb-3" name="txtImagen21" value="{{p.imagen2}}" hidden>
-                                        <label>Imagen3</label>
-                                        <input type="file" class="form-control mb-3" name="txtImagen3" value="" accept="image/*">
-                                        <label hidden>Imagen31</label>
-                                        <input type="text" class="form-control mb-3" name="txtImagen31" value="{{p.imagen3}}" hidden>
-                                        <label>Video</label>
-                                        <input type="file" class="form-control mb-3" name="txtVideo" value="" accept="video/*">
-                                        <label hidden>Video1</label>
-                                        <input type="text" class="form-control mb-3" name="txtVideo1" value="{{p.video}}" hidden>
-                                        <label for="txtMoneda" class="form-label">Moneda (*)</label>
-                                            <select class="form-select" name="txtMoneda" id="txtMoneda" required>
-                                                <option value="U$">USD</option>
-                                                <option value="C$">COR</option>                              
-                                                <!-- Agrega más opciones de moneda según sea necesario -->
-                                            </select>
-                                        <label>Descripción</label>
-                                        <input type="text" class="form-control mb-3" name="txtPrecio" value="{{p.precio}}">
-                                        <label>Descripción</label>
-                                        <input type="text" class="form-control mb-3" name="txtDescripcion" value="{{p.descripcion}}">
-                                  
-                                </div>
-                                <div class="modal-footer">
-                                    <button type="submit" class="btn btn-primary">Guardar Cambios</button>
-                                </div>
-                                </form>
-                              </div>
+        <div class="container">
+            <div class="card shadow">
+                <div class="card-body">
+                    <form action="/admin/productos/guardar" method="post" enctype="multipart/form-data">
+                        <div class="row mb-3">
+                            <div class="mb-3">
+                                <label for="txtNombre" class="form-label">Nombre (*)</label>
+                                <input type="text" class="form-control" name="txtNombre" id="txtNombre" placeholder="Escriba el nombre del producto" required>
                             </div>
-                          </div>
+                            <div class="mb-3">
+                                <label for="txtImagen1" class="form-label">Imagen 1 (*)</label>
+                                <input type="file" class="form-control" name="txtImagen1" id="txtImagen1" accept="image/*" placeholder="Seleccione la imagen del producto" required>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="txtImagen2" class="form-label">Imagen 2</label>
+                                <input type="file" class="form-control" name="txtImagen2" id="txtImagen2" accept="image/*" placeholder="Seleccione de la imagen del producto">
+                            </div>
+                            <div class="mb-3">
+                                <label for="txtImagen3" class="form-label">Imagen 3</label>
+                                <input type="file" class="form-control" name="txtImagen3" id="txtImagen3" accept="image/*" placeholder="Seleccione de la imagen del producto">
+                            </div>
+                            <div class="mb-3">
+                                <label for="txtVideo" class="form-label">Video</label>
+                                <input type="file" class="form-control" name="txtVideo" id="txtVideo" accept="video/*" placeholder="Seleccione el video del producto">
+                            </div>
+                            <div class="mb-3">
+                                <label for="txtMoneda" class="form-label">Moneda (*)</label>
+                                <select class="form-select" name="txtMoneda" id="txtMoneda" required>
+                                    <option value="U$">USD</option>
+                                    <option value="C$">COR</option>                              
+                                    <!-- Agrega más opciones de moneda según sea necesario -->
+                                </select>
+                            </div>                           
+                            <div class="mb-3">
+                                <label for="txtPrecio" class="form-label">Precio (*)</label>
+                                <input type="text" class="form-control" name="txtPrecio" id="txtPrecio" placeholder="Ingrese el precio del producto" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="txtDescripcion" class="form-label">Descripcion (*)</label>
+                                <input type="text" class="form-control" name="txtDescripcion" id="txtDescripcion" placeholder="Ingrese la descripción del producto" required>
+                            </div>
+                            <div class="col">
+                                <button class="btn btn-primary mb-3 mt-4" type="submit">Guardar</button>
+                            </div>
+                            </div>
+                            
+                        </div>
 
-                        
-                    {% endfor %}
-
-                </tbody>
-
-             </table>
+                    </form>
 
 
+                    <!-- Tabla -->
+
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th scope="col">Nombre</th>
+                                <th scope="col">Imagen</th>
+                                <th scope="col">Moneda</th>
+                                <th scope="col">Precio</th>
+                                <th scope="col">Editar</th>
+                                <th scope="col">Borrar</th>
+                            </tr>
+                        </thead>
+                    
+                    <tbody>
+                        {% for p in producto %}
+                            <tr>
+                                <td>{{p.nombre}}</td>
+                                <td><img src="/img/{{p.imagen1}}" class="img-thumbnail" alt="{{p.imagen1}}" style="max-width: 100px;"></td>
+                                <td>{{p.moneda}}</td>
+                                <td>{{p.precio}}</td>
+                                <td><button class="btn btn-primary btn-sm" id="btn-edit{{p.id}}" data-bs-toggle="modal" data-bs-target="#modal{{p.id}}">Editar</button></td>
+                                
+                                <td><form action="/admin/productos/borrar" method="post">
+                                    <input type="hidden" name="txtID" value="{{p.id}}">
+                                    <button type="submit" class="btn btn-danger">Eliminar</button>
+                                </form></td>
+                            </tr>
+
+                            <!-- modal -->
+
+                            <div class="modal fade" id="modal{{p.id}}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                    <h1 class="modal-title fs-5" id="exampleModalLabel">{{p.nombre}}</h1>
+                                    <button type="submit" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <form action="/admin/productos/actalizar" method="post" enctype="multipart/form-data">
+                                            <label hidden>ID</label>
+                                            <input hidden type="text" class="form-control mb-3" name="txtId" value="{{p.id}}" >
+                                            <label>Nombre</label>
+                                            <input type="text" class="form-control mb-3" name="txtNombre" value="{{p.nombre}}">
+                                            <label>Imagen1</label>
+                                            <input type="file" class="form-control mb-3" name="txtImagen1" value="" accept="image/*">
+                                            <label hidden>Imagen11</label>
+                                            <input type="text" class="form-control mb-3" name="txtImagen11" value="{{p.imagen1}}" hidden>
+                                            <label>Imagen2</label>
+                                            <input type="file" class="form-control mb-3" name="txtImagen2" value="" accept="image/*">
+                                            <label hidden>Imagen21</label>
+                                            <input type="text" class="form-control mb-3" name="txtImagen21" value="{{p.imagen2}}" hidden>
+                                            <label>Imagen3</label>
+                                            <input type="file" class="form-control mb-3" name="txtImagen3" value="" accept="image/*">
+                                            <label hidden>Imagen31</label>
+                                            <input type="text" class="form-control mb-3" name="txtImagen31" value="{{p.imagen3}}" hidden>
+                                            <label>Video</label>
+                                            <input type="file" class="form-control mb-3" name="txtVideo" value="" accept="video/*">
+                                            <label hidden>Video1</label>
+                                            <input type="text" class="form-control mb-3" name="txtVideo1" value="{{p.video}}" hidden>
+                                            <label for="txtMoneda" class="form-label">Moneda (*)</label>
+                                                <select class="form-select" name="txtMoneda" id="txtMoneda" required>
+                                                    <option value="U$">USD</option>
+                                                    <option value="C$">COR</option>                              
+                                                    <!-- Agrega más opciones de moneda según sea necesario -->
+                                                </select>
+                                            <label>Descripción</label>
+                                            <input type="text" class="form-control mb-3" name="txtPrecio" value="{{p.precio}}">
+                                            <label>Descripción</label>
+                                            <input type="text" class="form-control mb-3" name="txtDescripcion" value="{{p.descripcion}}">
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+                                    </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+
+                            
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+
+                </div>
             </div>
         </div>
-    </div>
-    
-</body>
+        </main>
+        
+
+        <!-- Footer Section -->
+        <footer class="text-white py-3 mt-auto">
+            <div class="container text-center">
+                <p>Email: ulisestm3@gmail.com</p>
+                <p>Web creada por Ulises Zuniga</p>
+                <p>&copy; Univalle 2024 - 220100164</p>
+            </div>
+        </footer>
+
+        <!-- Bootstrap Bundle with Popper -->
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    </body>
+</html>

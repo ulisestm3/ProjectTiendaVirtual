@@ -1,6 +1,3 @@
-
-
-
 #Local database
 MSQL_HOST = 'localhost'
 MSQL_USER = 'root'

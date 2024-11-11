@@ -1,0 +1,319 @@
+/* Estilos generales */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f8f9fa;
+    margin: 0;
+    padding: 0;
+}
+
+/* Encabezado */
+header {
+    background-color: #2ca900;
+    color: #fff;
+    padding: 10px; /* Aumento del padding para darle más espacio */
+    text-align: center;
+}
+
+header h1 {
+    margin: 0;
+    font-size: 2.5rem;
+}
+
+header p {
+    margin: 0;
+    font-size: 1.2rem;
+}
+
+/* Barra de navegación */
+.navbar {
+    background-color: #ffffff;
+}
+
+.navbar .navbar-brand {
+    font-weight: bold;
+    color: #b88942;
+}
+
+.navbar .navbar-nav .nav-link {
+    color: #b88942;
+}
+
+.navbar .navbar-nav .nav-link.active {
+    color: rgb(252, 252, 252);
+    font-weight: bold;
+    background-color: #2ca900;
+    border-radius: 10px;
+}
+
+/* Contenido principal */
+.welcome-section {
+    background-color: #010306;
+    color: #fff;
+    padding: 2rem;
+    border-radius: 8px;
+    margin-top: 20px;
+    font-size: 1.2rem; /* Asegurando que la fuente sea consistente */
+    text-align: justify;
+}
+
+.welcome-section h2 {
+    font-size: 2rem;
+    margin-bottom: 15px;
+}
+
+.welcome-section p {
+    font-size: 1.1rem;
+    line-height: 1.6;
+}
+
+/* Estilos para la página "Nosotros" */
+.main-content {
+    margin-top: 30px;
+    padding: 20px;
+}
+
+.main-content p {
+    font-size: 1.2rem; /* Consistencia con la página de inicio */
+    line-height: 1.6;
+    text-align: justify;
+}
+
+/* Imagen de bienvenida */
+.text-center img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+}
+
+/* Footer */
+footer {
+    background-color: #3c763d;
+    color: #fff;
+    padding: 15px 0;
+    text-align: center;
+    font-size: 0.9rem;
+}
+
+footer p {
+    margin: 5px 0;
+}
+
+/* Utilidades */
+.container .py-4 {
+    background-color: #007bff;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 10px;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 15px;
+}
+
+/* Asegurando que ambas páginas tengan el mismo diseño de contenedor */
+.main-container {
+    padding: 20px 0;
+}
+
+/* Estilos para el formulario de login */
+.login-form {
+    max-width: 400px;        /* Máximo ancho de 400px */
+    margin: 0 auto;          /* Centra el formulario horizontalmente */
+    padding: 20px;           /* Espaciado interno */
+    border-radius: 8px;      /* Bordes redondeados */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Sombra sutil para un efecto elevado */
+    background-color: #fff;  /* Fondo blanco */
+}
+
+.login-form h2 {
+    text-align: center;      /* Centra el título */
+    margin-bottom: 20px;     /* Espacio debajo del título */
+}
+
+.login-form .form-control {
+    border-radius: 5px;      /* Bordes redondeados en los campos de entrada */
+}
+
+.login-form .btn {
+    border-radius: 5px;      /* Bordes redondeados en los botones */
+}
+
+/* Asegurarse de que el formulario se adapte a dispositivos pequeños */
+@media (max-width: 500px) {
+    .login-form {
+        max-width: 90%;        /* Máximo ancho del 90% en pantallas pequeñas */
+    }
+}
+
+/* Estilo para el título "Inicio de sesión" */
+.login-form h2 {
+    text-align: center;
+    margin-bottom: 20px;
+    font-weight: bold;       /* Aumenta el grosor del texto */
+    color: #007bff;          /* Cambia el color del texto a azul (puedes cambiar el código de color según tu preferencia) */
+}
+
+/* Estilo para las etiquetas "Usuario" y "Contraseña" */
+.login-form label {
+    font-weight: bold;       /* Aumenta el grosor del texto */
+    color: #b88942;             /* Color de texto gris oscuro (puedes ajustarlo a tu gusto) */
+}
+
+/* Estilo para los títulos de los productos */
+.card-title {
+    color: #333;                    /* Color del texto de los títulos */
+    font-size: 1.2rem;               /* Tamaño de fuente */
+    font-weight: bold;               /* Grosor del texto */
+    margin-bottom: 10px;             /* Espaciado inferior */
+}
+
+/* Estilo para el segundo título (producto 8 y producto 6) */
+.card-body h4 {
+    color: #007bff;                  /* Color azul para el segundo título */
+    font-size: 1rem;                 /* Tamaño de fuente más pequeño */
+    font-weight: bold;             /* Normalizar el peso de la fuente */
+    margin-bottom: 5px;              /* Espaciado inferior */
+}
+
+/* Estilo para los botones */
+.btn-success {
+    color: #fff;                     /* Color del texto del botón */
+    background-color: #28a745;       /* Color de fondo del botón */
+    border-color: #28a745;           /* Color del borde del botón */
+    font-weight: bold;               /* Fuente en negrita */
+    padding: 10px 20px;              /* Espaciado dentro del botón */
+    border-radius: 5px;              /* Bordes redondeados */
+}
+
+/* Efecto hover para los botones */
+.btn-success:hover {
+    background-color: #218838;       /* Cambia el color de fondo cuando se pasa el cursor */
+    border-color: #1e7e34;           /* Cambia el color del borde al pasar el cursor */
+}
+
+/* Estilo para las descripciones vacías (si deseas personalizarlas en el futuro) */
+.card-text {
+    color: #666;                     /* Color gris para el texto de la descripción */
+    font-size: 0.9rem;                /* Tamaño de fuente más pequeño */
+}
+
+/* Ajustes para las imágenes dentro de las tarjetas */
+.card-img-top {
+    object-fit: contain;               /* Asegura que la imagen cubra el área sin distorsionar */
+    height: 150px;                   /* Altura fija para la imagen */
+}
+
+
+
+/* Estilo base para las tarjetas */
+.card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease; /* Transición suave */
+    border: 1px solid #ddd;   /* Borde por defecto */
+    border-radius: 10px;       /* Bordes redondeados */
+}
+
+/* Efecto hover para toda la tarjeta */
+.card-custom:hover {
+    transform: scale(1.15); /* Aumenta ligeramente el tamaño de la tarjeta */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2); /* Añade sombra alrededor de la tarjeta */
+    background-color: #f8f9fa;  /* Cambia el fondo al pasar el cursor */
+}
+
+/* Opcional: Puedes cambiar el color del título de la tarjeta también */
+.card:hover .card-title {
+    color: #007bff; /* Cambia el color del título al pasar el ratón */
+}
+
+/* Estilo para las imágenes en el detalle producto */
+.producto-container img {
+    width: 100%;                /* La imagen ocupa el 100% del ancho disponible */
+    max-width: 300px;           /* Limita el tamaño máximo de la imagen */
+    height: auto;               /* Mantiene la proporción de la imagen */
+    margin: 10px;               /* Espaciado entre imágenes */
+    transition: transform 0.3s ease, box-shadow 0.3s ease; /* Suaviza la animación de agrandar y sombra */
+    cursor: pointer;           /* Muestra el puntero al pasar sobre la imagen */
+    margin-left: auto;          /* Centra la imagen horizontalmente */
+    margin-right: auto;         /* Centra la imagen horizontalmente */
+}
+
+/* Efecto al pasar el cursor sobre la imagen (al hacer clic se agranda) */
+.producto-container img:hover {
+    transform: scale(1.9);      /* Aumenta ligeramente el tamaño de la imagen */
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);  /* Añade una sombra suave */
+}
+
+/* Estilo para el video, si es necesario */
+.producto-container video {
+    max-width: 80%;            /* El video no excederá el 100% del ancho de su contenedor */
+    height: auto;               /* Mantiene la relación de aspecto */
+    margin: 10px 0;             /* Espaciado entre los videos */
+}
+
+/* Títulos h3, h4, y h6 */
+h3, h4, h6 {
+    font-weight: bold; /* Hace el texto en negrita */
+    color: #b88942;       /* Cambia el color de las letras a un color oscuro, puedes ajustarlo a tu preferencia */
+    font-size: 1.2rem; /* Tamaño base para los textos, puedes ajustarlo según tus necesidades */
+}
+
+/* Especificamente para h3 */
+h3 {
+    font-size: 1.9rem; /* Aumenta el tamaño de h3 */
+    color: #007bff;    /* Cambia el color a azul, puedes personalizarlo */
+}
+
+/* Especificamente para h4 */
+h4 {
+    font-size: 1.5rem; /* Aumenta el tamaño de h4 */
+    color: #007bff; 
+}
+
+/* Especificamente para h6 */
+h6 {
+    font-size: 1.2rem; /* Aumenta ligeramente el tamaño de h6 */
+    color: #b88942;
+}
+
+/* Estilo del formulario de registro */
+#registroForm {
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+}
+
+#registroForm h2 {
+    font-weight: bold;
+    color: #007bff;
+}
+
+#registroForm .form-label {
+    font-weight: bold;
+    color: #b88942;
+}
+
+#registroForm input[type="text"],
+#registroForm input[type="password"],
+#registroForm input[type="email"] {
+    font-size: 1rem;
+    padding: 0.5rem;
+    border-radius: 0.3rem;
+}
+
+#registroForm .btn-primary {
+    font-weight: bold;
+    background-color: #007bff;
+    border: none;
+    transition: background-color 0.3s ease;
+}
+
+#registroForm .btn-primary:hover {
+    background-color: #0056b3;
+}
+
+/* Cambiar el color del texto de ayuda en el formulario */
+#registroForm .form-text {
+    color: #6c757d; /* Color de texto suave */
+    font-size: 0.9rem; /* Tamaño de fuente ligeramente más pequeño */
+}
+
