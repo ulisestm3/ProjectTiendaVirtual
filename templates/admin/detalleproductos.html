@@ -18,13 +18,13 @@
     <header>
         <div class="container text-center py-4">
             <h1>Tienda en Línea</h1>
-            <p>Proyecto Universitario</p>
+            <p>Proyecto universitario</p>
         </div>
         
         <!-- Navigation Bar -->
         <nav class="navbar navbar-expand-lg navbar-light bg-light">
             <div class="container">
-                <a class="navbar-brand" href="/">Nica Shangri-La</a>
+                <a class="navbar-brand" href="/admin">Nica Shangri-La</a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
                     aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
@@ -32,16 +32,18 @@
                 <div class="collapse navbar-collapse" id="navbarNav">
                     <ul class="navbar-nav ms-auto">
                         <li class="nav-item">
-                            <a class="nav-link {% if request.path == '/' %}active{% endif %}" href="/">Inicio</a>
+                            <!-- Usa '/admin/index' para la URL de inicio de administrador -->
+                            <a class="nav-link {% if request.path == '/admin' %}active{% endif %}" href="/admin">Inicio</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link {% if request.path == '/nosotros' %}active{% endif %}" href="/nosotros">Nosotros</a>
+                            <a class="nav-link {% if request.path == '/admin/nosotros' %}active{% endif %}" href="/admin/nosotros">Nosotros</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link {% if request.path == '/productos' %}active{% endif %}" href="/productos">Productos</a>
+                            <a class="nav-link {% if request.path == '/admin/editar' %}active{% endif %}" href="/admin/editar">Mis Productos</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link {% if request.path == '/admin/login' %}active{% endif %}" href="/admin/login">Login</a>
+                            <a class="nav-link" href="{{ url_for('admin_logout') }}">Salir</a>
+                            </li>
                         </li>
                     </ul>
                 </div>
@@ -50,20 +52,36 @@
     </header>
 
     <!-- Main Content -->
-    <main class="container my-5">
-        <div class="text-center">
-            <img src="img/Logotipo_para_Nica_ShangrilaNBG.png" alt="Logotipo de Nica Shangri-La" width="300" class="my-3">
+    <main class="container my-5 flex-grow-1">
+        <!-- Contenido del producto -->
+        <div class="container producto-container">
+          {% for producto in productos %}
+            <h3>{{ producto[1] }}</h3>
+            <h4>{{producto[8]}} {{ producto[6] }}</h4>
+            {% if producto[7] %}
+            <h5>{{ producto[7] }}</h5>
+            <br> 
+            <h6 class="custom"> Posteado por: {{producto[16]}} {{producto[17]}} </h6>
+            <br>
+            {% endif %}
+            <form action="/admin/login" method="get">
+              <button class="btn btn-primary comprar-btn">Comprar <i class="fas fa-shopping-cart"></i></button>
+          </form> <br>
+
+            <input type="hidden" name="producto_id" value="{{ producto[0] }}">
+            <img src="/img/{{ producto[2] }}" class="card-img-top" alt="{{ producto[2] }}" style="width: 100%;">
+            {% if producto[3] %}
+              <img src="/img/{{ producto[3] }}" class="card-img-top" alt="{{ producto[3] }}" style="width: 100%;">
+            {% endif %}
+            {% if producto[4] %}
+              <img src="/img/{{ producto[4] }}" class="card-img-top" alt="{{ producto[4] }}" style="width: 100%;">
+            {% endif %}
+            {% if producto[5] %}
+              <video src="/video/{{ producto[5] }}" width="100%" controls></video>
+            {% endif %}
+          {% endfor %}
         </div>
-        <div class="row align-items-md-stretch">
-            <div class="col-md-12">
-                <div class="h-100 p-5 text-white bg-primary border rounded-3 welcome-section">
-                    <h2>Bienvenido a Nica Shangri-La</h2>
-                    <p>
-                        Descubre la esencia de Nicaragua en nuestra plataforma de comercio electrónico, donde conectamos a compradores y vendedores locales. Desde artesanías tradicionales hasta productos modernos, ofrecemos una experiencia de compra única y personalizada. Simplificamos la logística de entrega para potenciar la economía local y fomentar el emprendimiento en nuestro país.
-                    </p>
-                </div>
-            </div>
-        </div>
+
     </main>
     
 

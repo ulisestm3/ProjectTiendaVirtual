@@ -8,6 +8,15 @@ import os
 app = Flask(__name__)
 app.secret_key = config.HEX_SEC_KEY
 
+# Función para establecer la conexión a la base de datos
+def dbconnection():
+    return pymysql.connect(
+        host=config.MSQL_HOST,
+        user=config.MSQL_USER,
+        password=config.MSQL_PASSWORD,
+        database=config.MSQL_DB
+    )
+
 # Configuración de Flask-Login
 login_manager_app = LoginManager(app)
 login_manager_app.login_view = 'admin_login'
@@ -37,18 +46,23 @@ class User(UserMixin):
             return User(id_usuario=usuario_data[0], usuario=usuario_data[1], password=usuario_data[2], nombre=usuario_data[3], apellido=usuario_data[4], email=usuario_data[5])
         return None
 
-# Función para establecer la conexión a la base de datos
-def dbconnection():
-    return pymysql.connect(
-        host=config.MSQL_HOST,
-        user=config.MSQL_USER,
-        password=config.MSQL_PASSWORD,
-        database=config.MSQL_DB
-    )
-
 @login_manager_app.user_loader
 def load_user(user_id):
     return User.get(user_id)
+
+# Control de sesion activa
+@app.route('/admin/logout')
+def logout_admin():
+    logout_user()
+    session.clear()
+    return redirect(url_for('admin_login'))
+
+@app.route('/admin/logout')
+@login_required
+def admin_logout():
+    session.pop('logeado', None)
+    logout_user()
+    return redirect('/admin/login')
 
 # Ruta para cargar imágenes y videos
 @app.route('/img/<imagen>')
@@ -66,6 +80,10 @@ def videos(video):
 @app.route('/')
 def inicio():
     return render_template('sitio/index.html')
+
+@app.route('/nosotros')
+def nosotros():
+    return render_template('sitio/nosotros.html')
 
 @app.route('/productos')
 def productos():
@@ -98,43 +116,9 @@ def detalleproductos():
     
     return render_template('sitio/detalleproductos.html', productos=resultado)
 
-@app.route('/nosotros')
-def nosotros():
-    return render_template('sitio/nosotros.html')
-
-@app.route('/pago')
-def pago():
-    return render_template('sitio/pago.html')
-
-@app.route('/pagoexitoso', methods=['POST'])
-def pago_exitoso():
-    return render_template('sitio/pagoexitoso.html')
-
-# Rutas para administración
-@app.route('/admin')
-@login_required
-def index_productos():
-    conexion = dbconnection()
-    cursor = conexion.cursor()
-    cursor.execute("SELECT * FROM productos")
-    productos = cursor.fetchall()
-    conexion.close()
-    return render_template('admin/index.html', productos=productos)
-
 @app.route('/admin/')
 def false_admin():
     return redirect(url_for('admin_login'))
-
-@app.route('/admin/logout')
-def logout_admin():
-    logout_user()
-    session.clear()
-    return redirect(url_for('admin_login'))
-
-@app.route('/admin/nosotros')
-@login_required
-def admin_nosotros():
-    return render_template('admin/nosotros.html')
 
 @app.route('/admin/login')
 def admin_login():
@@ -202,6 +186,44 @@ def admin_registro_usuario():
     
     return render_template('admin/registro.html')
 
+# Rutas para administración
+@app.route('/admin')
+@login_required
+def index_productos():
+    conexion = dbconnection()
+    cursor = conexion.cursor()
+    cursor.execute("SELECT * FROM productos")
+    productos = cursor.fetchall()
+    conexion.close()
+    return render_template('admin/index.html', productos=productos)
+
+@app.route('/admin/detalleproductos', methods=['POST'])
+@login_required
+def detalleproductos_admin():
+    _id = request.form['txtID']
+    conexion = dbconnection()
+    cursor = conexion.cursor()
+    
+    # Consulta con INNER JOIN entre productos y usuarios a través de id_usuario
+    query = """
+        SELECT productos.*, usuarios.*
+        FROM productos
+        INNER JOIN usuarios ON productos.id_usuario = usuarios.id_usuario
+        WHERE productos.id = %s
+    """
+    
+    cursor.execute(query, (_id,))
+    resultado = cursor.fetchall()
+    
+    # Cierra la conexión
+    conexion.close()
+    
+    return render_template('admin/detalleproductos.html', productos=resultado)
+
+@app.route('/admin/nosotros')
+@login_required
+def admin_nosotros():
+    return render_template('admin/nosotros.html')
 
 @app.route('/admin/productos')
 @login_required
@@ -390,12 +412,16 @@ def admin_productos_borrar():
 
     return redirect('/admin/editar')
 
-@app.route('/admin/logout')
+@app.route('/admin/pago')
 @login_required
-def admin_logout():
-    session.pop('logeado', None)
-    logout_user()
-    return redirect('/admin/login')
+def pago_admin():
+    return render_template('sitio/pago.html')
+
+@app.route('/admin/pagoexitoso', methods=['POST'])
+@login_required
+def pago_exitoso():
+    return render_template('sitio/pagoexitoso.html')
+
 
 # Ejecuta la app
 if __name__ == '__main__':

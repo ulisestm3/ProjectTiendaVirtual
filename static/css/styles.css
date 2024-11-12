@@ -16,7 +16,8 @@ header {
 
 header h1 {
     margin: 0;
-    font-size: 2.5rem;
+    font-size: 3.5rem;
+    font-weight: bold;
 }
 
 header p {
@@ -80,7 +81,7 @@ header p {
 
 /* Imagen de bienvenida */
 .text-center img {
-    max-width: 100%;
+    max-width: 30%;
     height: auto;
     border-radius: 8px;
 }
@@ -322,4 +323,39 @@ h6 {
 #registroForm .form-text {
     color: #6c757d; /* Color de texto suave */
     font-size: 0.9rem; /* Tamaño de fuente ligeramente más pequeño */
+}
+
+.form-label {
+    color: #b88942;
+    font-size: 1.2rem;
+    font-weight: bold;  
+}
+
+label {
+    color: #b88942;
+    font-weight: bold;  
+}
+
+.modal-title {
+    color: blue;
+    font-size: 1.1rem; /* Puedes ajustar el tamaño a tu preferencia */
+    font-weight: bold;
+}
+
+.form-control, .form-select {
+    color: #4a4a4a; /* Gris oscuro */
+}
+
+/* Estilo para el texto de la tabla */
+.table thead th {
+    color: #b88942; /* Gris suave para el encabezado */
+    font-weight: bold;
+}
+
+.table tbody td {
+    color: #5a5a5a; /* Gris oscuro suave para las celdas */
+}
+
+.h-100.p-5 {
+    text-align: center;
 }

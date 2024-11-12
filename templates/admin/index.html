@@ -56,7 +56,7 @@
     <main class="container my-5">
         <div class="row align-items-md-stretch">
                 <div class="col-md-12">
-                    <div class="h-100 p-5 text-white bg-primary border rounded-3" style="font-size: 1.2em; text-align: justify;">
+                    <div class="h-100 p-5 text-white bg-primary border rounded-3" style="font-size: 1.2em;">
                         
                         <h2>Bienvenido <strong> {{ current_user.nombre }} {{ current_user.apellido}} </strong> a NicaShangri-La</h2>
                         <p>
@@ -79,7 +79,7 @@
                                 <h4 class="card-title">{{producto[8]}} {{ producto[6] }}</h4>
                                 <p class="card-text"></p>
     
-                                <form action="/admin/index" method="post">
+                                <form action="/admin/detalleproductos" method="post">
                                     <input type="hidden" name="txtID" value="{{producto[0]}}">
                                     <button type="submit" class="btn btn-success">Ver detalle</button>
                                 </form>
