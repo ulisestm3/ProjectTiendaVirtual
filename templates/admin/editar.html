@@ -19,7 +19,8 @@
         <header>
             <div class="container text-center py-4">
                 <h1>Tienda en Línea</h1>
-                <p>Proyecto universitario</p>
+                <p>Proyecto Universitario</p>
+                <p> Usuario: {{ current_user.usuario }}</p>
             </div>
             
             <!-- Navigation Bar -->
@@ -43,7 +44,7 @@
                                 <a class="nav-link {% if request.path == '/admin/editar' %}active{% endif %}" href="/admin/editar">Mis Productos</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link {% if request.path == '/admin/login' %}active{% endif %}" href="/admin/login">Salir</a>
+                                <a class="nav-link" href="{{ url_for('admin_logout') }}">Salir</a>
                             </li>
                         </ul>
                     </div>
@@ -54,7 +55,7 @@
 
         <!-- Main Content -->
         <main class="container my-5">
-            <h1 class="text-center mt-5 mb-5 text-primary">NICA SHANGRI-LA<br>CRUD del Administrador</h1>
+            <h1 class="text-center mt-5 mb-5 text-primary">NICA SHANGRI-LA<br>Productos de {{current_user.nombre}}</h1>
 
         <div class="container">
             <div class="card shadow">
@@ -99,7 +100,7 @@
                                 <input type="text" class="form-control" name="txtDescripcion" id="txtDescripcion" placeholder="Ingrese la descripción del producto" required>
                             </div>
                             <div class="col">
-                                <button class="btn btn-primary mb-3 mt-4" type="submit">Guardar</button>
+                                <button class="btn btn-primary mb-3 mt-4" type="submit">Agregar</button>
                             </div>
                             </div>
                             

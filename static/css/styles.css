@@ -252,7 +252,7 @@ footer p {
 }
 
 /* Títulos h3, h4, y h6 */
-h3, h4, h6 {
+h3, h4, h5, h6 {
     font-weight: bold; /* Hace el texto en negrita */
     color: #b88942;       /* Cambia el color de las letras a un color oscuro, puedes ajustarlo a tu preferencia */
     font-size: 1.2rem; /* Tamaño base para los textos, puedes ajustarlo según tus necesidades */
@@ -270,10 +270,17 @@ h4 {
     color: #007bff; 
 }
 
+/* Especificamente para h5 */
+h5 {
+    font-size: 1.5rem; /* Aumenta el tamaño de h4 */
+    color: #787879; 
+}
+
 /* Especificamente para h6 */
+
 h6 {
     font-size: 1.2rem; /* Aumenta ligeramente el tamaño de h6 */
-    color: #b88942;
+    color: #02861c;
 }
 
 /* Estilo del formulario de registro */
@@ -316,4 +323,3 @@ h6 {
     color: #6c757d; /* Color de texto suave */
     font-size: 0.9rem; /* Tamaño de fuente ligeramente más pequeño */
 }
-

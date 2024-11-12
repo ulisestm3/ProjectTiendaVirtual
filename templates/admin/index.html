@@ -18,7 +18,8 @@
     <header>
         <div class="container text-center py-4">
             <h1>Tienda en Línea</h1>
-            <p>Proyecto universitario</p>
+            <p>Proyecto Universitario</p>
+            <p> Usuario: {{ current_user.usuario }}</p>
         </div>
         
         <!-- Navigation Bar -->
@@ -42,7 +43,7 @@
                             <a class="nav-link {% if request.path == '/admin/editar' %}active{% endif %}" href="/admin/editar">Mis Productos</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link {% if request.path == '/admin/login' %}active{% endif %}" href="/admin/login">Salir</a>
+                            <a class="nav-link" href="{{ url_for('admin_logout') }}">Salir</a>
                         </li>
                     </ul>
                 </div>
@@ -54,17 +55,15 @@
     <!-- Main Content -->
     <main class="container my-5">
         <div class="row align-items-md-stretch">
-            {% for usuarios in usuarios %}
                 <div class="col-md-12">
                     <div class="h-100 p-5 text-white bg-primary border rounded-3" style="font-size: 1.2em; text-align: justify;">
                         
-                        <h2>Bienvenido <strong> {{ usuarios[1] }}</strong> al dashboard de NicaShangri-La</h2>
+                        <h2>Bienvenido <strong> {{ current_user.nombre }} {{ current_user.apellido}} </strong> a NicaShangri-La</h2>
                         <p>
-                            Aqui podra administrar los productos
+                            Aquí podra comprar y vender productos
                         </p>
                     </div>
                 </div>
-                {% endfor %}
             </div>
 
             <div class="container">

@@ -18,7 +18,8 @@
     <header>
         <div class="container text-center py-4">
             <h1>Tienda en Línea</h1>
-            <p>Proyecto universitario</p>
+            <p>Proyecto Universitario</p>
+            <p> Usuario: {{ current_user.usuario }}</p>
         </div>
         
         <!-- Navigation Bar -->
@@ -42,7 +43,7 @@
                             <a class="nav-link {% if request.path == '/admin/editar' %}active{% endif %}" href="/admin/editar">Mis Productos</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link {% if request.path == '/admin/login' %}active{% endif %}" href="/admin/login">Salir</a>
+                            <a class="nav-link" href="{{ url_for('admin_logout') }}">Salir</a>
                         </li>
                     </ul>
                 </div>
@@ -50,23 +51,24 @@
         </nav>
     </header>
 
-   <!-- Main Content -->
-   <main class="container my-5">
+    <!-- Main Content -->
+    <main class="container my-5">
+        <div class="row align-items-md-stretch">
+            <div class="col-md-12">
+                <div class="h-100 p-5 text-white bg-primary border rounded-3 welcome-section">
+                    
 
-    <div class="row align-items-md-stretch">
-        <div class="col-md-12">
-            <div class="h-100 p-5 text-white bg-primary border rounded-3 welcome-section">
-                <h2>Nosotros</h2>
-                <p>
-                    Nica Shangri-La busca ofrecer una experiencia de compra más cercana y personalizada para los usuarios nicaragüenses. Desde la venta de artesanías tradicionales hasta productos modernos y tecnológicos, la plataforma aspira a ser un escaparate completo de la diversidad de la oferta local.
-                </p>
-                <p>
-                    Además, al asumir la logística de entrega, Nica Shangri-La no solo simplifica el proceso para los usuarios, sino que también contribuye al desarrollo de una cadena de suministro eficiente dentro del país, potenciando así la economía local y fomentando el emprendimiento en Nicaragua.
-                </p>
+                    <h2>Nosotros</h2>
+                    <p>
+                        Nica Shangri-La busca ofrecer una experiencia de compra más cercana y personalizada para los usuarios nicaragüenses. Desde la venta de artesanías tradicionales hasta productos modernos y tecnológicos, la plataforma aspira a ser un escaparate completo de la diversidad de la oferta local.
+                    </p>
+                    <p>
+                        Además, al asumir la logística de entrega, Nica Shangri-La no solo simplifica el proceso para los usuarios, sino que también contribuye al desarrollo de una cadena de suministro eficiente dentro del país, potenciando así la economía local y fomentando el emprendimiento en Nicaragua.
+                    </p>
+                </div>
             </div>
         </div>
-    </div>
-</main>
+    </main>
     
 
     <!-- Footer Section -->
