@@ -126,21 +126,48 @@ def admin_login():
 
 @app.route('/admin/login', methods=['POST'])
 def admin_login_post():
+    # Recoge los datos del formulario
     _usuario = request.form['txtUsuario']
     _password = request.form['txtPassword']
+    
+    # Conexión a la base de datos
     conexion = dbconnection()
     cursor = conexion.cursor()
-    cursor.execute("SELECT id_usuario, usuario, password, nombre, apellido, email FROM usuarios WHERE usuario = %s AND password = %s", (_usuario, _password))
+    
+    # Consulta para obtener el usuario, la contraseña y el estado
+    cursor.execute("""
+        SELECT id_usuario, usuario, password, nombre, apellido, email, id_estado 
+        FROM usuarios 
+        WHERE usuario = %s AND password = %s
+    """, (_usuario, _password))
     usuario = cursor.fetchone()
     conexion.close()
 
     if usuario:
+        # Verifica el estado del usuario (columna 9 -> índice 6 en el resultado)
+        id_estado = usuario[6]  # Columna 'id_estado'
+        
+        if id_estado == 2:
+            return render_template('admin/login.html', message="Usuario inactivo")
+        elif id_estado == 3:
+            return render_template('admin/login.html', message="Usuario bloqueado")
+        
+        # Si el estado es válido, iniciar sesión
         session['logeado'] = True
-        user = User(id_usuario=usuario[0], usuario=usuario[1], password=usuario[2], nombre=usuario[3], apellido=usuario[4], email=usuario[5])
+        user = User(
+            id_usuario=usuario[0], 
+            usuario=usuario[1], 
+            password=usuario[2], 
+            nombre=usuario[3], 
+            apellido=usuario[4], 
+            email=usuario[5]
+        )
         login_user(user)
         return redirect('/admin')
     else:
+        # Si las credenciales son incorrectas
         return render_template('admin/login.html', message="Credenciales incorrectas")
+
 
 @app.route('/admin/registro')
 def admin_registro():
@@ -156,7 +183,11 @@ def admin_registro_usuario():
         _email = request.form['txtEmail']
         
         # Obtiene la fecha y hora actual
-        fecha_registro = datetime.now()
+        _fecha_registro = datetime.now()
+        _rol = 3
+        _estado = 1
+        _fecha_actualizacion = datetime.now()
+        _id_usuario_actualiza = 1
         
         conexion = dbconnection()
         cursor = conexion.cursor()
@@ -170,10 +201,10 @@ def admin_registro_usuario():
         
         # Inserta el nuevo usuario con la fecha de registro
         cursor.execute("""
-            INSERT INTO usuarios (usuario, password, nombre, apellido, email, fecha_registro) 
-            VALUES (%s, %s, %s, %s, %s, %s)
+            INSERT INTO usuarios (usuario, password, nombre, apellido, email, fecha_registro, id_rol, id_estado, fecha_actualizacion, id_usuario_actualiza) 
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
             """, 
-            (_usuario, _password, _nombre, _apellido, _email, fecha_registro)
+            (_usuario, _password, _nombre, _apellido, _email, _fecha_registro, _rol, _estado, _fecha_actualizacion, _id_usuario_actualiza)
         )
         
         conexion.commit()
