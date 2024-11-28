@@ -22,19 +22,21 @@
             <p> Usuario: {{ current_user.usuario }}</p>
         </div>
         
-        <!-- Navigation Bar -->
-        <nav class="navbar navbar-expand-lg navbar-light bg-light">
-            <div class="container">
-                <a class="navbar-brand" href="/admin">Nica Shangri-La</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
-                    aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="collapse navbar-collapse" id="navbarNav">
-                    <ul class="navbar-nav ms-auto">
-                        <li class="nav-item">
-                            <!-- Usa '/admin/index' para la URL de inicio de administrador -->
-                            <a class="nav-link {% if request.path == '/admin' %}active{% endif %}" href="/admin">Inicio</a>
+<!-- Navigation Bar -->
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <div class="container">
+        <!-- Redirige a la ruta del supervisor -->
+        <a class="navbar-brand" href="/supersu/indexsupervisor">Nica Shangri-La</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+            aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item">
+                    <!-- Redirige a la página de inicio correspondiente al supervisor -->
+                    <a class="nav-link {% if request.path == '/supersu/indexsupervisor' %}active{% endif %}" 
+                       href="/supersu/indexsupervisor">Inicio</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link {% if request.path == '/admin/nosotros' %}active{% endif %}" href="/admin/nosotros">Nosotros</a>

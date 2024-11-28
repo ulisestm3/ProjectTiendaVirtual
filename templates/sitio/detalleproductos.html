@@ -12,15 +12,29 @@
 
     <!-- Custom CSS -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+
+    <script>
+      function checkSessionAndBuy(event) {
+        // Verificamos si hay sesión activa
+        {% if not session.get('user_id') %}
+          event.preventDefault(); // Evita que el formulario se envíe
+          
+          // Mostrar modal de alerta
+          const modal = new bootstrap.Modal(document.getElementById('sessionModal'));
+          modal.show();
+        {% endif %}
+      }
+    </script>
+
 </head>
-<body class="d-flex flex-column min-vh-100"> <!-- Flexbox para asegurar que el footer esté al fondo -->
+<body class="d-flex flex-column min-vh-100">
     <!-- Header Section -->
     <header>
         <div class="container text-center py-4">
             <h1>Tienda en Línea</h1>
             <p>Proyecto Universitario</p>
         </div>
-        
+
         <!-- Navigation Bar -->
         <nav class="navbar navbar-expand-lg navbar-light bg-light">
             <div class="container">
@@ -62,9 +76,10 @@
             <h6 class="custom"> Posteado por: {{producto[16]}} {{producto[17]}} </h6>
             <br>
             {% endif %}
-            <form action="/admin/login" method="get">
+            <!-- Botón Comprar con la función de verificación de sesión -->
+            <form action="/admin/login" method="get" onsubmit="checkSessionAndBuy(event)">
               <button class="btn btn-primary comprar-btn">Comprar <i class="fas fa-shopping-cart"></i></button>
-          </form> <br>
+            </form> <br>
 
             <input type="hidden" name="producto_id" value="{{ producto[0] }}">
             <img src="/img/{{ producto[2] }}" class="card-img-top" alt="{{ producto[2] }}" style="width: 100%;">
@@ -79,9 +94,26 @@
             {% endif %}
           {% endfor %}
         </div>
-
     </main>
     
+    <!-- Modal de advertencia para iniciar sesión -->
+    <div class="modal fade" id="sessionModal" tabindex="-1" aria-labelledby="sessionModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="sessionModalLabel">Inicia sesión para continuar</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <p>Para realizar la compra, es necesario que inicies sesión primero. ¿Te gustaría iniciar sesión ahora?</p>
+          </div>
+          <div class="modal-footer">
+            <a href="/admin/login" class="btn btn-primary">Iniciar sesión</a>
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Seguir navegando</button>
+          </div>
+        </div>
+      </div>
+    </div>
 
     <!-- Footer Section -->
     <footer class="text-white py-3 mt-auto">

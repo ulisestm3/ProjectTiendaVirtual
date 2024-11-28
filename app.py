@@ -1,6 +1,8 @@
 from flask import Flask, render_template, request, redirect, session, send_from_directory, url_for
 from flask_login import LoginManager, login_user, logout_user, login_required, UserMixin, current_user
 from datetime import datetime
+from functools import wraps #decorador
+from werkzeug.security import generate_password_hash, check_password_hash
 import config
 import pymysql
 import os
@@ -21,17 +23,39 @@ def dbconnection():
 login_manager_app = LoginManager(app)
 login_manager_app.login_view = 'admin_login'
 
+#Funcion decorador de rutas
+def role_required(role):
+    """
+    Decorador para restringir el acceso a rutas según el rol del usuario.
+    """
+    def decorator(func):
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            if not current_user.is_authenticated:
+                return redirect(url_for('admin_login'))  # Redirige al login si no está autenticado
+
+            # Verifica si el rol del usuario es el adecuado
+            print(f"Rol requerido: {role}, Rol actual del usuario: {current_user.id_rol}")  # Imprime los valores
+            if current_user.id_rol != role:
+                return redirect(url_for('admin_login'))  # Redirige si el rol no es el adecuado
+
+            return func(*args, **kwargs)  # Permite el acceso si el rol es el adecuado
+
+        return wrapper
+    return decorator
+
 # Clase de usuario para manejar la autenticación
 class User(UserMixin):
-    def __init__(self, id_usuario, usuario, password, nombre, apellido, email):
+    def __init__(self, id_usuario, usuario, password, nombre, apellido, email, id_rol, id_estado):
         self.id_usuario = id_usuario
         self.usuario = usuario
         self.password = password
         self.nombre = nombre
         self.apellido = apellido
         self.email = email
+        self.id_rol = id_rol  # Asegúrate de que 'id_rol' esté aquí
+        self.id_estado = id_estado
 
-    # Implementación de get_id para que Flask-Login pueda obtener el identificador del usuario
     def get_id(self):
         return str(self.id_usuario)
 
@@ -43,20 +67,15 @@ class User(UserMixin):
         usuario_data = cursor.fetchone()
         conexion.close()
         if usuario_data:
-            return User(id_usuario=usuario_data[0], usuario=usuario_data[1], password=usuario_data[2], nombre=usuario_data[3], apellido=usuario_data[4], email=usuario_data[5])
+            return User(id_usuario=usuario_data[0], usuario=usuario_data[1], password=usuario_data[2], nombre=usuario_data[3], apellido=usuario_data[4], email=usuario_data[5], id_rol=usuario_data[7], id_estado=usuario_data[8])
         return None
+
 
 @login_manager_app.user_loader
 def load_user(user_id):
     return User.get(user_id)
 
 # Control de sesion activa
-@app.route('/admin/logout')
-def logout_admin():
-    logout_user()
-    session.clear()
-    return redirect(url_for('admin_login'))
-
 @app.route('/admin/logout')
 @login_required
 def admin_logout():
@@ -65,7 +84,12 @@ def admin_logout():
     return redirect('/admin/login')
 
 # Ruta para cargar imágenes y videos
-@app.route('/img/<imagen>')
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'mp4'}
+MAX_FILE_SIZE = 16 * 1024 * 1024  # 16MB
+
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
 @app.route('/img/<imagen>')
 def imagenes(imagen):
     print(imagen)
@@ -120,55 +144,6 @@ def detalleproductos():
 def false_admin():
     return redirect(url_for('admin_login'))
 
-@app.route('/admin/login')
-def admin_login():
-    return render_template('admin/login.html')
-
-@app.route('/admin/login', methods=['POST'])
-def admin_login_post():
-    # Recoge los datos del formulario
-    _usuario = request.form['txtUsuario']
-    _password = request.form['txtPassword']
-    
-    # Conexión a la base de datos
-    conexion = dbconnection()
-    cursor = conexion.cursor()
-    
-    # Consulta para obtener el usuario, la contraseña y el estado
-    cursor.execute("""
-        SELECT id_usuario, usuario, password, nombre, apellido, email, id_estado 
-        FROM usuarios 
-        WHERE usuario = %s AND password = %s
-    """, (_usuario, _password))
-    usuario = cursor.fetchone()
-    conexion.close()
-
-    if usuario:
-        # Verifica el estado del usuario (columna 9 -> índice 6 en el resultado)
-        id_estado = usuario[6]  # Columna 'id_estado'
-        
-        if id_estado == 2:
-            return render_template('admin/login.html', message="Usuario inactivo")
-        elif id_estado == 3:
-            return render_template('admin/login.html', message="Usuario bloqueado")
-        
-        # Si el estado es válido, iniciar sesión
-        session['logeado'] = True
-        user = User(
-            id_usuario=usuario[0], 
-            usuario=usuario[1], 
-            password=usuario[2], 
-            nombre=usuario[3], 
-            apellido=usuario[4], 
-            email=usuario[5]
-        )
-        login_user(user)
-        return redirect('/admin')
-    else:
-        # Si las credenciales son incorrectas
-        return render_template('admin/login.html', message="Credenciales incorrectas")
-
-
 @app.route('/admin/registro')
 def admin_registro():
     return render_template('admin/registro.html')
@@ -197,29 +172,101 @@ def admin_registro_usuario():
         usuario_existente = cursor.fetchone()
         
         if usuario_existente:
+            conexion.close()
             return render_template('admin/registro.html', mensaje='El usuario ya existe.')
         
-        # Inserta el nuevo usuario con la fecha de registro
+        if not _password.strip():
+            return render_template('admin/registro.html', mensaje="La contraseña no puede estar vacía.")
+
+
+        # Genera un hash de la contraseña
+        hashed_password = generate_password_hash(_password, method='pbkdf2:sha256')
+
+        
+        # Inserta el nuevo usuario con la contraseña hasheada
         cursor.execute("""
             INSERT INTO usuarios (usuario, password, nombre, apellido, email, fecha_registro, id_rol, id_estado, fecha_actualizacion, id_usuario_actualiza) 
             VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
             """, 
-            (_usuario, _password, _nombre, _apellido, _email, _fecha_registro, _rol, _estado, _fecha_actualizacion, _id_usuario_actualiza)
+            (_usuario, hashed_password, _nombre, _apellido, _email, _fecha_registro, _rol, _estado, _fecha_actualizacion, _id_usuario_actualiza)
         )
         
         conexion.commit()
         conexion.close()
         
-        return render_template('admin/login.html')
+        return render_template('admin/login.html', mensaje='Registro exitoso.')
     
     except pymysql.Error as e:
         print("Error de MySQL:", e)
     
     return render_template('admin/registro.html')
 
+@app.route('/admin/login')
+def admin_login():
+    return render_template('admin/login.html')
+
+@app.route('/admin/login', methods=['POST'])
+def admin_login_post():
+    _usuario = request.form['txtUsuario']
+    _password = request.form['txtPassword']
+    
+    conexion = dbconnection()
+    cursor = conexion.cursor()
+    
+    cursor.execute("""
+        SELECT id_usuario, usuario, password, nombre, apellido, email, id_rol, id_estado
+        FROM usuarios 
+        WHERE usuario = %s
+    """, (_usuario,))
+    usuario = cursor.fetchone()
+
+    print(usuario)  # Agrega esto para depurar
+
+    conexion.close()
+    
+    if not usuario:
+        return render_template('admin/login.html', message="Usuario no encontrado")
+    
+    if check_password_hash(usuario[2], _password):
+        id_rol = usuario[6]
+        id_estado = usuario[7]
+        print("Contraseña correcta")
+        print(id_rol)
+        print(id_estado)
+
+        if id_estado == 2:
+            return render_template('admin/login.html', message="Usuario inactivo")
+        elif id_estado == 3:
+            print("estado 3")
+            return render_template('admin/login.html', message="Usuario bloqueado")
+        
+        session['logeado'] = True
+        user = User(
+            id_usuario=usuario[0], 
+            usuario=usuario[1], 
+            password=usuario[2], 
+            nombre=usuario[3], 
+            apellido=usuario[4], 
+            email=usuario[5],
+            id_rol=usuario[6],
+            id_estado=usuario[7]
+        )
+        login_user(user)
+        
+        if id_rol == 1:
+            return redirect('/supersu/indexadministrador')
+        elif id_rol == 2:
+            return redirect('/supersu/indexsupervisor')
+        elif id_rol == 3:
+            return redirect('/admin')
+    else:
+        print("Contraseña incorrecta")
+        return render_template('admin/login.html', message="Credenciales incorrectas")
+
 # Rutas para administración
 @app.route('/admin')
 @login_required
+@role_required(3)  # 3 = Usuarios
 def index_productos():
     conexion = dbconnection()
     cursor = conexion.cursor()
@@ -230,6 +277,7 @@ def index_productos():
 
 @app.route('/admin/detalleproductos', methods=['POST'])
 @login_required
+@role_required(3)  # 3 = Usuarios
 def detalleproductos_admin():
     _id = request.form['txtID']
     conexion = dbconnection()
@@ -253,11 +301,13 @@ def detalleproductos_admin():
 
 @app.route('/admin/nosotros')
 @login_required
+@role_required(3)  # 3 = Usuarios
 def admin_nosotros():
     return render_template('admin/nosotros.html')
 
 @app.route('/admin/productos')
 @login_required
+@role_required(3)  # 3 = Usuarios
 def admin_productos_leer():
     conexion = dbconnection()
     cursor = conexion.cursor()
@@ -268,6 +318,7 @@ def admin_productos_leer():
 
 @app.route('/admin/editar')
 @login_required
+@role_required(3)  # 3 = Usuarios
 def admin_productos_editar():
     # Tomar el id_usuario del usuario autenticado
     _id_usuario = current_user.id_usuario
@@ -290,7 +341,13 @@ def admin_productos_editar():
 # Rutas para CRUD de productos
 @app.route('/admin/productos/guardar', methods=['GET','POST'])
 @login_required
+@role_required(3)  # 3 = Usuarios
 def admin_productos_guardar():
+    for file in [request.files['txtImagen1'], request.files['txtVideo']]:
+        if file and allowed_file(file.filename):
+            if file.content_length > MAX_FILE_SIZE:
+                return "Archivo demasiado grande", 400
+            
     try:
         conexion = dbconnection()
         cursor = conexion.cursor()
@@ -356,6 +413,7 @@ def admin_productos_guardar():
 
 @app.route('/admin/productos/actalizar', methods=['POST'])
 @login_required
+@role_required(3)  # 3 = Usuarios
 def admin_productos_actualizar():
     conexion = dbconnection()
     cursor = conexion.cursor()
@@ -431,6 +489,7 @@ def admin_productos_actualizar():
 
 @app.route('/admin/productos/borrar', methods=['POST'])
 @login_required
+@role_required(3)  # 3 = Usuarios
 def admin_productos_borrar():
     _id = request.form['txtID']
     print(_id) 
@@ -445,14 +504,29 @@ def admin_productos_borrar():
 
 @app.route('/admin/pago')
 @login_required
+@role_required(3)  # 3 = Usuarios
 def pago_admin():
-    return render_template('sitio/pago.html')
+    return render_template('admin/pagoexitoso.html')
 
 @app.route('/admin/pagoexitoso', methods=['POST'])
 @login_required
+@role_required(3)  # 3 = Usuarios
 def pago_exitoso():
-    return render_template('sitio/pagoexitoso.html')
+    return render_template('admin/pagoexitoso.html')
 
+@app.route('/supersu/indexadministrador')
+@role_required(1)  # 1 = Administrador
+def index_administrador():
+    if not session.get('logeado'):
+        return redirect('/admin/login')
+    return render_template('supersu/indexadministrador.html')
+
+@app.route('/supersu/indexsupervisor')
+@role_required(2)  # 2 = Usuarios
+def index_supervisor():
+    if not session.get('logeado'):
+        return redirect('/admin/login')
+    return render_template('supersu/indexsupervisor.html')
 
 # Ejecuta la app
 if __name__ == '__main__':
