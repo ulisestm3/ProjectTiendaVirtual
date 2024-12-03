@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Tienda en línea Nica Shangri-La, una plataforma que conecta a compradores y vendedores locales en Nicaragua.">
-    <title>NicaShangrila</title>
+    <title>Editar Perfil - NicaShangri-La</title>
 
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
@@ -13,15 +13,16 @@
     <!-- Custom CSS -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
 </head>
-<body class="d-flex flex-column min-vh-100"> <!-- Flexbox para asegurar que el footer esté al fondo -->
+<body class="d-flex flex-column min-vh-100">
+
     <!-- Header Section -->
     <header>
         <div class="container text-center py-4">
-            <h1>Tienda en Línea</h1>
-            <p>Proyecto universitario</p>
-            <p> Usuario: {{ current_user.usuario }}</p>
+            <h1>Nica Shangri-La</h1>
+            <p>Proyecto Universitario</p>
+            <p>Usuario: {{ current_user.usuario }}</p>
         </div>
-        
+
         <!-- Navigation Bar -->
         <nav class="navbar navbar-expand-lg navbar-light bg-light">
             <div class="container">
@@ -55,39 +56,51 @@
     </header>
 
     <!-- Main Content -->
-    <main class="container my-5 flex-grow-1">
-        <!-- Contenido del producto -->
-        <div class="container producto-container">
-          {% for producto in productos %}
-            <h3>{{ producto[1] }}</h3>
-            <h4>{{producto[8]}} {{ producto[6] }}</h4>
-            {% if producto[7] %}
-            <h5>{{ producto[7] }}</h5>
-            <br> 
-            <h6 class="custom"> Posteado por: {{producto[18]}} {{producto[19]}}</h6>
-            <h6 class="custom"> Fecha: {{producto[10]}}</h6>
-            <br>
-            {% endif %}
-            <form action="/admin/pagoexitoso" method="get">
-              <button class="btn btn-primary comprar-btn">Comprar <i class="fas fa-shopping-cart"></i></button>
-          </form> <br>
-
-            <input type="hidden" name="producto_id" value="{{ producto[0] }}">
-            <img src="/img/{{ producto[2] }}" class="card-img-top" alt="{{ producto[2] }}" style="width: 100%;">
-            {% if producto[3] %}
-              <img src="/img/{{ producto[3] }}" class="card-img-top" alt="{{ producto[3] }}" style="width: 100%;">
-            {% endif %}
-            {% if producto[4] %}
-              <img src="/img/{{ producto[4] }}" class="card-img-top" alt="{{ producto[4] }}" style="width: 100%;">
-            {% endif %}
-            {% if producto[5] %}
-              <video src="/video/{{ producto[5] }}" width="100%" controls></video>
-            {% endif %}
-          {% endfor %}
+    <main class="container my-5">
+        <div class="row align-items-md-stretch">
+            <div class="col-md-12">
+                <div class="h-100 p-5 text-white bg-primary border rounded-3">
+                    <h2>Editar Perfil de <strong>{{ current_user.nombre }} {{ current_user.apellido }}</strong></h2>
+                    <p>Actualiza tus datos personales y cambia la contraseña si lo deseas.</p>
+                </div>
+            </div>
         </div>
 
+        <div class="container">
+            <form action="/admin/actualizar_perfil" method="POST">
+                <div class="row g-3">
+                    <!-- Campo Nombre -->
+                    <div class="col-md-6">
+                        <label for="nombre" class="form-label">Nombre</label>
+                        <input type="text" class="form-control" id="nombre" name="nombre" value="{{ current_user.nombre }}" required>
+                    </div>
+
+                    <!-- Campo Apellido -->
+                    <div class="col-md-6">
+                        <label for="apellido" class="form-label">Apellido</label>
+                        <input type="text" class="form-control" id="apellido" name="apellido" value="{{ current_user.apellido }}" required>
+                    </div>
+
+                    <!-- Campo Email -->
+                    <div class="col-md-6">
+                        <label for="email" class="form-label">Correo Electrónico</label>
+                        <input type="email" class="form-control" id="email" name="email" value="{{ current_user.email }}" required>
+                    </div>
+
+                    <!-- Campo Contraseña (opcional) -->
+                    <div class="col-md-6">
+                        <label for="password" class="form-label">Cambiar Contraseña</label>
+                        <input type="password" class="form-control" id="password" name="password" placeholder="Dejar vacío si no deseas cambiarla">
+                    </div>
+
+                    <!-- Botón para Guardar Cambios -->
+                    <div class="col-12">
+                        <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+                    </div>
+                </div>
+            </form>
+        </div>
     </main>
-    
 
     <!-- Footer Section -->
     <footer class="text-white py-3 mt-auto">

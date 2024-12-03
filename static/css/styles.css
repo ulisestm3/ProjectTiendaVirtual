@@ -8,7 +8,7 @@ body {
 
 /* Encabezado */
 header {
-    background-color: #2ca900;
+    background-color: #2da900ce;
     color: #fff;
     padding: 10px; /* Aumento del padding para darle más espacio */
     text-align: center;
@@ -42,7 +42,7 @@ header p {
 .navbar .navbar-nav .nav-link.active {
     color: rgb(252, 252, 252);
     font-weight: bold;
-    background-color: #2ca900;
+    background-color: #2da900c4;
     border-radius: 10px;
 }
 
@@ -88,7 +88,7 @@ header p {
 
 /* Footer */
 footer {
-    background-color: #3c763d;
+    background-color: #3c763dbe;
     color: #fff;
     padding: 15px 0;
     text-align: center;
@@ -101,7 +101,7 @@ footer p {
 
 /* Utilidades */
 .container .py-4 {
-    background-color: #007bff;
+    background-color: #007bff9f;
     max-width: 1200px;
     margin: 0 auto;
     padding: 10px;
@@ -181,8 +181,8 @@ footer p {
 /* Estilo para los botones */
 .btn-success {
     color: #fff;                     /* Color del texto del botón */
-    background-color: #28a745;       /* Color de fondo del botón */
-    border-color: #28a745;           /* Color del borde del botón */
+    background-color: #28a746c8;       /* Color de fondo del botón */
+    border-color: #28a746d0;           /* Color del borde del botón */
     font-weight: bold;               /* Fuente en negrita */
     padding: 10px 20px;              /* Espaciado dentro del botón */
     border-radius: 5px;              /* Bordes redondeados */
@@ -281,7 +281,7 @@ h5 {
 
 h6 {
     font-size: 1.2rem; /* Aumenta ligeramente el tamaño de h6 */
-    color: #02861c;
+    color: #787879;
 }
 
 /* Estilo del formulario de registro */
@@ -292,7 +292,7 @@ h6 {
 
 #registroForm h2 {
     font-weight: bold;
-    color: #007bff;
+    color: #007bffe0;
 }
 
 #registroForm .form-label {
@@ -310,13 +310,13 @@ h6 {
 
 #registroForm .btn-primary {
     font-weight: bold;
-    background-color: #007bff;
+    background-color: #007bffa2;
     border: none;
     transition: background-color 0.3s ease;
 }
 
 #registroForm .btn-primary:hover {
-    background-color: #0056b3;
+    background-color: #0057b3;
 }
 
 /* Cambiar el color del texto de ayuda en el formulario */
@@ -337,7 +337,7 @@ label {
 }
 
 .modal-title {
-    color: blue;
+    color: rgba(0, 0, 255, 0.695);
     font-size: 1.1rem; /* Puedes ajustar el tamaño a tu preferencia */
     font-weight: bold;
 }
@@ -357,5 +357,5 @@ label {
 }
 
 .h-100.p-5 {
-    text-align: center;
+    text-align: justify;
 }

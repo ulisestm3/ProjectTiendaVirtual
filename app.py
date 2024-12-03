@@ -113,7 +113,7 @@ def nosotros():
 def productos():
     conexion = dbconnection()
     cursor = conexion.cursor()
-    cursor.execute("SELECT * FROM productos")
+    cursor.execute("SELECT * FROM productos WHERE id_estado=1")
     productos = cursor.fetchall()
     conexion.close()
     return render_template('sitio/productos.html', productos=productos)
@@ -270,7 +270,7 @@ def admin_login_post():
 def index_productos():
     conexion = dbconnection()
     cursor = conexion.cursor()
-    cursor.execute("SELECT * FROM productos")
+    cursor.execute("SELECT * FROM productos WHERE id_estado=1")
     productos = cursor.fetchall()
     conexion.close()
     return render_template('admin/index.html', productos=productos)
@@ -322,10 +322,11 @@ def admin_productos_leer():
 def admin_productos_editar():
     # Tomar el id_usuario del usuario autenticado
     _id_usuario = current_user.id_usuario
+    _id_estado= 1
     conexion=dbconnection()
     cursor=conexion.cursor()
-    sql = "SELECT * FROM productos WHERE id_usuario = %s"
-    cursor.execute(sql, (_id_usuario,))
+    sql = "SELECT * FROM productos WHERE id_usuario = %s AND id_estado = %s"
+    cursor.execute(sql, (_id_usuario, _id_estado))
     producto=cursor.fetchall()
 
     insertObjeto=[]
@@ -336,18 +337,31 @@ def admin_productos_editar():
     cursor.close()
         
     print(producto)
-    return render_template('admin/editar.html', producto=insertObjeto)
 
-# Rutas para CRUD de productos
+    #Llenar categorias
+    conexion=dbconnection()
+    cursor=conexion.cursor()
+    sql2 = "SELECT * FROM categorias"
+    cursor.execute(sql2,)
+    categoria=cursor.fetchall()
+
+    insertCategoria=[]
+    columnaNames=[column[0] for column in cursor.description]
+
+    for record in categoria:
+        insertCategoria.append(dict(zip(columnaNames, record)))
+    cursor.close()
+
+    print(categoria)
+
+    return render_template('admin/editar.html', producto=insertObjeto, categoria=insertCategoria)
+
+
+
 @app.route('/admin/productos/guardar', methods=['GET','POST'])
 @login_required
 @role_required(3)  # 3 = Usuarios
 def admin_productos_guardar():
-    for file in [request.files['txtImagen1'], request.files['txtVideo']]:
-        if file and allowed_file(file.filename):
-            if file.content_length > MAX_FILE_SIZE:
-                return "Archivo demasiado grande", 400
-            
     try:
         conexion = dbconnection()
         cursor = conexion.cursor()
@@ -359,12 +373,15 @@ def admin_productos_guardar():
         _moneda = request.form['txtMoneda']
         _precio = request.form['txtPrecio']
         _descripcion = request.form['txtDescripcion']
+        _id_categoria = request.form["txtCategoria"]
         
+        print("categoria es: ", _id_categoria)
         # Tomar el id_usuario del usuario autenticado
         _id_usuario = current_user.id_usuario
         _id_usuario_actualiza = current_user.id_usuario
         fecha_registro = datetime.now()
         fecha_actualizacion = datetime.now()
+        _id_estado = 1
 
         nuevoNombre1 = ""
         nuevoNombre2 = ""
@@ -375,7 +392,7 @@ def admin_productos_guardar():
         horaActual=tiempo.strftime('%Y-%m-%d_%H-%M-%S')
 
         # Agregar logs para verificar que los archivos están siendo recibidos
-        print("Archivos recibidos:", request.files)
+        print("Archivos recibidos:", request.files, request.form)
 
         if _archivo1.filename != "":
             nuevoNombre1 = horaActual + "_" + _archivo1.filename
@@ -397,9 +414,11 @@ def admin_productos_guardar():
             print("Guardando video con nombre:", nuevoNombrevideo)
             _video.save(os.path.join(app.root_path, "templates/sitio/video/", nuevoNombrevideo))
 
-        sql = """INSERT INTO productos (nombre, imagen1, imagen2, imagen3, video, precio, descripcion, moneda, id_usuario, fecha_registro, fecha_actualizacion, id_usuario_actualiza) 
-                 VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"""
-        cursor.execute(sql, (_nombre, nuevoNombre1, nuevoNombre2, nuevoNombre3, nuevoNombrevideo, _precio, _descripcion, _moneda, _id_usuario, fecha_registro, fecha_actualizacion, _id_usuario_actualiza))
+        print(_nombre, nuevoNombre1, nuevoNombre2, nuevoNombre3, nuevoNombrevideo, _precio, _descripcion, _moneda, _id_usuario, fecha_registro, fecha_actualizacion, _id_usuario_actualiza, _id_categoria, _id_estado)
+        
+        sql = """INSERT INTO productos (nombre, imagen1, imagen2, imagen3, video, precio, descripcion, moneda, id_usuario, fecha_registro, fecha_actualizacion, id_usuario_actualiza, id_categoria, id_estado) 
+                 VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"""
+        cursor.execute(sql, (_nombre, nuevoNombre1, nuevoNombre2, nuevoNombre3, nuevoNombrevideo, _precio, _descripcion, _moneda, _id_usuario, fecha_registro, fecha_actualizacion, _id_usuario_actualiza, _id_categoria, _id_estado))
         conexion.commit()
 
     except pymysql.Error as e:
@@ -426,10 +445,13 @@ def admin_productos_actualizar():
     _moneda = request.form['txtMoneda']
     _precio = request.form['txtPrecio']
     _descripcion = request.form['txtDescripcion']
-
+    _id_categoria = request.form["txtCategoria"]
+        
+    print("categoria es: ", _id_categoria)
     # Tomar el id_usuario del usuario autenticado
-    _id_usuario = current_user.id_usuario
-
+    _id_usuario_actualiza = current_user.id_usuario
+    fecha_actualizacion = datetime.now()
+    
     nuevoNombre1 = ""
     nuevoNombre2 = ""
     nuevoNombre3 = ""
@@ -466,26 +488,11 @@ def admin_productos_actualizar():
         nuevoNombrevideo = request.form['txtVideo1']
 
             
-    sql = "update productos set nombre=%s, imagen1=%s, imagen2=%s, imagen3=%s, video=%s, precio=%s, descripcion=%s, moneda=%s where id=%s"
-    cursor.execute(sql, (_nombre, nuevoNombre1, nuevoNombre2, nuevoNombre3, nuevoNombrevideo, _precio,_descripcion,_moneda, _id))
+    sql = "update productos set nombre=%s, imagen1=%s, imagen2=%s, imagen3=%s, video=%s, precio=%s, descripcion=%s, moneda=%s, fecha_actualizacion=%s, id_usuario_actualiza=%s, id_categoria=%s where id=%s"
+    cursor.execute(sql, (_nombre, nuevoNombre1, nuevoNombre2, nuevoNombre3, nuevoNombrevideo, _precio,_descripcion,_moneda, fecha_actualizacion, _id_usuario_actualiza, _id_categoria, _id))
     conexion.commit() 
 
-    
-    conexion=dbconnection()
-    cursor=conexion.cursor()
-    sql = "select * from productos where id_usuario=%s"
-    cursor.execute(sql, (_id_usuario))
-    producto=cursor.fetchall()
-
-    insertObjeto=[]
-    columnaNames=[column[0] for column in cursor.description]
-
-    for record in producto:
-        insertObjeto.append(dict(zip(columnaNames, record)))
-    cursor.close()
-        
-    print(producto)
-    return render_template('admin/editar.html', producto=insertObjeto)
+    return redirect('/admin/editar')
 
 @app.route('/admin/productos/borrar', methods=['POST'])
 @login_required
@@ -493,14 +500,31 @@ def admin_productos_actualizar():
 def admin_productos_borrar():
     _id = request.form['txtID']
     print(_id) 
+
+    _id_usuario_actualiza = current_user.id_usuario
+    fecha_actualizacion = datetime.now()
+    
     
     conexion=dbconnection()
     cursor=conexion.cursor()
-    sql = 'delete from productos where id=%s'
-    cursor.execute(sql, _id)
+    sql = 'update productos set id_estado=2, fecha_actualizacion=%s, id_usuario_actualiza=%s where id=%s'
+    cursor.execute(sql, (fecha_actualizacion, _id_usuario_actualiza, _id))
     conexion.commit()
 
     return redirect('/admin/editar')
+
+@app.route('/admin/perfil')
+@login_required
+@role_required(3)  # 3 = Usuarios
+def editar_perfil():
+    _id_usuario= current_user.id_usuario
+    conexion = dbconnection()
+    cursor = conexion.cursor()
+    sql = 'SELECT * FROM usuarios WHERE id_usuario =%s'
+    cursor.execute(sql, _id_usuario)
+    usuarios = cursor.fetchall()
+    conexion.close()
+    return render_template('admin/perfil.html', usuarios=usuarios)
 
 @app.route('/admin/pago')
 @login_required

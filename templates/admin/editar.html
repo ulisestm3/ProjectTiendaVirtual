@@ -44,6 +44,9 @@
                                 <a class="nav-link {% if request.path == '/admin/editar' %}active{% endif %}" href="/admin/editar">Mis Productos</a>
                             </li>
                             <li class="nav-item">
+                                <a class="nav-link {% if request.path == '/admin/perfil' %}active{% endif %}" href="/admin/perfil">Perfil</a>
+                            </li>
+                            <li class="nav-item">
                                 <a class="nav-link" href="{{ url_for('admin_logout') }}">Salir</a>
                             </li>
                         </ul>
@@ -99,6 +102,14 @@
                                 <label for="txtDescripcion" class="form-label">Descripcion (*)</label>
                                 <input type="text" class="form-control" name="txtDescripcion" id="txtDescripcion" placeholder="Ingrese la descripción del producto" required>
                             </div>
+                            <div class="mb-3">
+                                <label for="txtCategoria" class="form-label">Categoría (*)</label>
+                                <select class="form-select" name="txtCategoria" id="txtCategoria" required>
+                                    {% for c in categoria %}
+                                            <option value="{{ c['id_categoria'] }}">{{ c['id_categoria'] }}. {{ c['categoria'] }}</option>
+                                        {% endfor %}
+                                </select>
+                            </div>                                                                                                          
                             <div class="col">
                                 <button class="btn btn-primary mb-3 mt-4" type="submit">Agregar</button>
                             </div>
@@ -130,11 +141,18 @@
                                 <td><img src="/img/{{p.imagen1}}" class="img-thumbnail" alt="{{p.imagen1}}" style="max-width: 100px;"></td>
                                 <td>{{p.moneda}}</td>
                                 <td>{{p.precio}}</td>
-                                <td><button class="btn btn-primary btn-sm" id="btn-edit{{p.id}}" data-bs-toggle="modal" data-bs-target="#modal{{p.id}}">Editar</button></td>
+                                <td>
+                                    <form action="/admin/detalleproductos" method="post">
+                                        <input type="hidden" name="txtID" value="{{p.id}}">
+                                        <button type="submit" class="btn btn-primary btn-sm">Ver</button>
+                                    </form>
+                                    <br>
+
+                                    <button class="btn btn-primary btn-sm" id="btn-edit{{p.id}}" data-bs-toggle="modal" data-bs-target="#modal{{p.id}}">Editar</button></td>
                                 
                                 <td><form action="/admin/productos/borrar" method="post">
                                     <input type="hidden" name="txtID" value="{{p.id}}">
-                                    <button type="submit" class="btn btn-danger">Eliminar</button>
+                                    <button type="submit" class="btn btn-primary btn-danger">Eliminar</button>
                                 </form></td>
                             </tr>
 
@@ -179,6 +197,8 @@
                                             <input type="text" class="form-control mb-3" name="txtPrecio" value="{{p.precio}}">
                                             <label>Descripción</label>
                                             <input type="text" class="form-control mb-3" name="txtDescripcion" value="{{p.descripcion}}">
+                                            <label>Categoría</label>
+                                            <input type="text" class="form-control mb-3" name="txtCategoria" value="{{p.id_categoria}}">
                                     </div>
                                     <div class="modal-footer">
                                         <button type="submit" class="btn btn-primary">Actualizar</button>
