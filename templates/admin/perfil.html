@@ -57,42 +57,57 @@
 
     <!-- Main Content -->
     <main class="container my-5">
-        <div class="row align-items-md-stretch">
-            <div class="col-md-12">
-                <div class="h-100 p-5 text-white bg-primary border rounded-3">
-                    <h2>Editar Perfil de <strong>{{ current_user.nombre }} {{ current_user.apellido }}</strong></h2>
-                    <p>Actualiza tus datos personales y cambia la contraseña si lo deseas.</p>
-                </div>
-            </div>
-        </div>
-
         <div class="container">
             <form action="/admin/actualizar_perfil" method="POST">
                 <div class="row g-3">
                     <!-- Campo Nombre -->
                     <div class="col-md-6">
-                        <label for="nombre" class="form-label">Nombre</label>
-                        <input type="text" class="form-control" id="nombre" name="nombre" value="{{ current_user.nombre }}" required>
+                        <label for="txtNombre" class="form-label">Nombre (*)</label>
+                        <input type="text" class="form-control" id="txtNombre" name="txtNombre" value="{{ current_user.nombre }}" required>
                     </div>
-
+        
                     <!-- Campo Apellido -->
                     <div class="col-md-6">
-                        <label for="apellido" class="form-label">Apellido</label>
-                        <input type="text" class="form-control" id="apellido" name="apellido" value="{{ current_user.apellido }}" required>
+                        <label for="txtApellido" class="form-label">Apellido (*)</label>
+                        <input type="text" class="form-control" id="txtApellido" name="txtApellido" value="{{ current_user.apellido }}" required>
                     </div>
-
+        
+                    <!-- Campo Teléfono -->
+                    <div class="col-md-6">
+                        <label for="txtTelefono" class="form-label">Teléfono (*)</label>
+                        <input type="text" class="form-control" id="txtTelefono" name="txtTelefono" value="{{ current_user.telefono }}" required>
+                    </div>
+        
+                    <!-- Campo Dirección -->
+                    <div class="col-md-6">
+                        <label for="txtDireccion" class="form-label">Dirección (*)</label>
+                        <input type="text" class="form-control" id="txtDireccion" name="txtDireccion" value="{{ current_user.direccion }}" required>
+                    </div>
+        
                     <!-- Campo Email -->
                     <div class="col-md-6">
-                        <label for="email" class="form-label">Correo Electrónico</label>
-                        <input type="email" class="form-control" id="email" name="email" value="{{ current_user.email }}" required>
+                        <label for="txtEmail" class="form-label">Correo Electrónico (*)</label>
+                        <input type="email" class="form-control" id="txtEmail" name="txtEmail" value="{{ current_user.email }}" required>
                     </div>
-
-                    <!-- Campo Contraseña (opcional) -->
+        
+                    <!-- Campo Contraseña -->
                     <div class="col-md-6">
-                        <label for="password" class="form-label">Cambiar Contraseña</label>
-                        <input type="password" class="form-control" id="password" name="password" placeholder="Dejar vacío si no deseas cambiarla">
+                        <label for="txtContrasena" class="form-label">Cambiar Contraseña</label>
+                        <input type="password" class="form-control mb-2" id="txtContrasena" name="txtContrasena" placeholder="Nueva contraseña">
+                    
+                        <label for="txtConfirmarContrasena" class="form-label">Confirmar Contraseña</label>
+                        <input type="password" class="form-control mb-2" id="txtConfirmarContrasena" name="txtConfirmarContrasena" placeholder="Repite la contraseña">
+                    
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="mostrarContrasena" onclick="togglePasswordVisibility()">
+                            <label class="form-check-label" for="mostrarContrasena">Mostrar contraseñas</label>
+                        </div>
+                    
+                        <!-- Mensajes de validación -->
+                        <small id="errorContrasena" class="text-danger d-none">Las contraseñas no coinciden</small>
+                        <small id="matchContrasena" class="text-success d-none">¡Las contraseñas coinciden!</small>
                     </div>
-
+        
                     <!-- Botón para Guardar Cambios -->
                     <div class="col-12">
                         <button type="submit" class="btn btn-primary">Guardar Cambios</button>
@@ -100,6 +115,40 @@
                 </div>
             </form>
         </div>
+        
+        <script>
+            // Mostrar/Ocultar contraseñas
+            function togglePasswordVisibility() {
+                const passwordField = document.getElementById('txtContrasena');
+                const confirmPasswordField = document.getElementById('txtConfirmarContrasena');
+                const type = passwordField.type === 'password' ? 'text' : 'password';
+                passwordField.type = type;
+                confirmPasswordField.type = type;
+            }
+        
+            // Comparar contraseñas en tiempo real
+            const confirmPasswordField = document.getElementById('txtConfirmarContrasena');
+            const passwordField = document.getElementById('txtContrasena');
+            const error = document.getElementById('errorContrasena');
+            const match = document.getElementById('matchContrasena');
+        
+            confirmPasswordField.addEventListener('input', function () {
+                const password = passwordField.value;
+                const confirmPassword = confirmPasswordField.value;
+        
+                if (confirmPassword === "") {
+                    error.classList.add('d-none');
+                    match.classList.add('d-none');
+                } else if (password === confirmPassword) {
+                    error.classList.add('d-none');
+                    match.classList.remove('d-none');
+                } else {
+                    error.classList.remove('d-none');
+                    match.classList.add('d-none');
+                }
+            });
+        </script>
+        
     </main>
 
     <!-- Footer Section -->

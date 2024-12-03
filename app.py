@@ -46,7 +46,7 @@ def role_required(role):
 
 # Clase de usuario para manejar la autenticación
 class User(UserMixin):
-    def __init__(self, id_usuario, usuario, password, nombre, apellido, email, id_rol, id_estado):
+    def __init__(self, id_usuario, usuario, password, nombre, apellido, email, id_rol, id_estado, telefono, direccion):
         self.id_usuario = id_usuario
         self.usuario = usuario
         self.password = password
@@ -55,6 +55,8 @@ class User(UserMixin):
         self.email = email
         self.id_rol = id_rol  # Asegúrate de que 'id_rol' esté aquí
         self.id_estado = id_estado
+        self.telefono = telefono
+        self.direccion = direccion
 
     def get_id(self):
         return str(self.id_usuario)
@@ -67,7 +69,7 @@ class User(UserMixin):
         usuario_data = cursor.fetchone()
         conexion.close()
         if usuario_data:
-            return User(id_usuario=usuario_data[0], usuario=usuario_data[1], password=usuario_data[2], nombre=usuario_data[3], apellido=usuario_data[4], email=usuario_data[5], id_rol=usuario_data[7], id_estado=usuario_data[8])
+            return User(id_usuario=usuario_data[0], usuario=usuario_data[1], password=usuario_data[2], nombre=usuario_data[3], apellido=usuario_data[4], email=usuario_data[5], id_rol=usuario_data[7], id_estado=usuario_data[8], telefono=usuario_data[11], direccion=usuario_data[12])
         return None
 
 
@@ -170,10 +172,18 @@ def admin_registro_usuario():
         # Verifica si el usuario ya existe
         cursor.execute("SELECT * FROM usuarios WHERE usuario = %s", (_usuario,))
         usuario_existente = cursor.fetchone()
+
+        # Verifica si el usuario ya existe
+        cursor.execute("SELECT * FROM usuarios WHERE email = %s", (_email,))
+        email_existente = cursor.fetchone()
         
         if usuario_existente:
             conexion.close()
             return render_template('admin/registro.html', mensaje='El usuario ya existe.')
+        
+        if email_existente:
+            conexion.close()
+            return render_template('admin/registro.html', mensaje='El correo ya existe, favor contactar con un supevisor.')
         
         if not _password.strip():
             return render_template('admin/registro.html', mensaje="La contraseña no puede estar vacía.")
@@ -214,7 +224,7 @@ def admin_login_post():
     cursor = conexion.cursor()
     
     cursor.execute("""
-        SELECT id_usuario, usuario, password, nombre, apellido, email, id_rol, id_estado
+        SELECT id_usuario, usuario, password, nombre, apellido, email, id_rol, id_estado, telefono, direccion
         FROM usuarios 
         WHERE usuario = %s
     """, (_usuario,))
@@ -249,8 +259,11 @@ def admin_login_post():
             apellido=usuario[4], 
             email=usuario[5],
             id_rol=usuario[6],
-            id_estado=usuario[7]
-        )
+            id_estado=usuario[7],
+            telefono=usuario[8],
+            direccion=usuario[9]
+            )
+        
         login_user(user)
         
         if id_rol == 1:
@@ -516,7 +529,7 @@ def admin_productos_borrar():
 @app.route('/admin/perfil')
 @login_required
 @role_required(3)  # 3 = Usuarios
-def editar_perfil():
+def ver_perfil():
     _id_usuario= current_user.id_usuario
     conexion = dbconnection()
     cursor = conexion.cursor()
@@ -525,6 +538,63 @@ def editar_perfil():
     usuarios = cursor.fetchall()
     conexion.close()
     return render_template('admin/perfil.html', usuarios=usuarios)
+
+@app.route('/admin/actualizar_perfil', methods=['POST'])
+@login_required
+@role_required(3)  # 3 = Usuarios
+def editar_perfil_actualizar():
+    try:
+        # Datos del formulario
+        _id_usuario = current_user.id_usuario
+        _nombre = request.form["txtNombre"]
+        _apellido = request.form["txtApellido"]
+        _telefono = request.form["txtTelefono"]
+        _direccion = request.form["txtDireccion"]
+        _email = request.form["txtEmail"]
+        _contrasena = request.form["txtContrasena"]
+
+        # Conexión a la base de datos
+        conexion = dbconnection()
+        cursor = conexion.cursor()
+        
+        _id_usuario_actualiza = current_user.id_usuario
+        fecha_actualizacion = datetime.now()
+
+        # Construcción de la consulta
+        if _contrasena.strip():  # Si la contraseña no está vacía
+            hashed_password = generate_password_hash(_contrasena)  # Hasheamos la contraseña
+            sql = '''
+                UPDATE Usuarios 
+                SET nombre=%s, apellido=%s, telefono=%s, direccion=%s, email=%s, password=%s, id_usuario_actualiza=%s, fecha_actualizacion=%s
+                WHERE id_usuario=%s
+            '''
+            cursor.execute(sql, (_nombre, _apellido, _telefono, _direccion, _email, hashed_password, _id_usuario_actualiza, fecha_actualizacion, _id_usuario))
+        else:
+            sql = '''
+                UPDATE Usuarios 
+                SET nombre=%s, apellido=%s, telefono=%s, direccion=%s, email=%s, id_usuario_actualiza=%s, fecha_actualizacion=%s
+                WHERE id_usuario=%s
+            '''
+            cursor.execute(sql, (_nombre, _apellido, _telefono, _direccion, _email, _id_usuario_actualiza, fecha_actualizacion, _id_usuario))
+
+        # Confirmar cambios y cerrar conexión
+        conexion.commit()
+        cursor.close()
+        conexion.close()
+
+        return redirect('/admin/perfil')
+
+    except pymysql.Error as e:
+        print("Error de MySQL:", e)
+    except Exception as e:
+        print("Error general:", e)
+    finally:
+        try:
+            conexion.close()
+        except:
+            pass
+
+    return redirect('/admin/perfil')
 
 @app.route('/admin/pago')
 @login_required
