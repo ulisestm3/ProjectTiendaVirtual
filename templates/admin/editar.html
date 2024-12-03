@@ -44,6 +44,9 @@
                                 <a class="nav-link {% if request.path == '/admin/editar' %}active{% endif %}" href="/admin/editar">Mis Productos</a>
                             </li>
                             <li class="nav-item">
+                                <a class="nav-link {% if request.path == '/admin/carrito' %}active{% endif %}" href="/admin/carrito">Carrito</a>
+                            </li>
+                            <li class="nav-item">
                                 <a class="nav-link {% if request.path == '/admin/perfil' %}active{% endif %}" href="/admin/perfil">Perfil</a>
                             </li>
                             <li class="nav-item">
@@ -140,18 +143,18 @@
                                 <td>{{p.nombre}}</td>
                                 <td><img src="/img/{{p.imagen1}}" class="img-thumbnail" alt="{{p.imagen1}}" style="max-width: 100px;"></td>
                                 <td>{{p.moneda}}</td>
-                                <td>{{p.precio}}</td>
+                                <td>{{"{:,.2f}".format(p.precio)}}</td>
                                 <td>
                                     <form action="/admin/detalleproductos" method="post">
-                                        <input type="hidden" name="txtID" value="{{p.id}}">
+                                        <input type="hidden" name="txtID" value="{{p.id_producto}}">
                                         <button type="submit" class="btn btn-primary btn-sm">Ver</button>
                                     </form>
                                     <br>
 
-                                    <button class="btn btn-primary btn-sm" id="btn-edit{{p.id}}" data-bs-toggle="modal" data-bs-target="#modal{{p.id}}">Editar</button></td>
+                                    <button class="btn btn-primary btn-sm" id="btn-edit{{p.id_producto}}" data-bs-toggle="modal" data-bs-target="#modal{{p.id}}">Editar</button></td>
                                 
                                 <td><form action="/admin/productos/borrar" method="post">
-                                    <input type="hidden" name="txtID" value="{{p.id}}">
+                                    <input type="hidden" name="txtID" value="{{p.id_producto}}">
                                     <button type="submit" class="btn btn-primary btn-danger">Eliminar</button>
                                 </form></td>
                             </tr>
@@ -168,7 +171,7 @@
                                     <div class="modal-body">
                                         <form action="/admin/productos/actalizar" method="post" enctype="multipart/form-data">
                                             <label hidden>ID</label>
-                                            <input hidden type="text" class="form-control mb-3" name="txtId" value="{{p.id}}" >
+                                            <input hidden type="text" class="form-control mb-3" name="txtId" value="{{p.id_producto}}" >
                                             <label>Nombre</label>
                                             <input type="text" class="form-control mb-3" name="txtNombre" value="{{p.nombre}}">
                                             <label>Imagen1</label>

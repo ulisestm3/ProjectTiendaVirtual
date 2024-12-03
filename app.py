@@ -5,6 +5,7 @@ from functools import wraps #decorador
 from werkzeug.security import generate_password_hash, check_password_hash
 import config
 import pymysql
+import decimal
 import os
 
 app = Flask(__name__)
@@ -131,7 +132,7 @@ def detalleproductos():
         SELECT productos.*, usuarios.*
         FROM productos
         INNER JOIN usuarios ON productos.id_usuario = usuarios.id_usuario
-        WHERE productos.id = %s
+        WHERE productos.id_producto = %s
     """
     
     cursor.execute(query, (_id,))
@@ -300,8 +301,8 @@ def detalleproductos_admin():
     query = """
         SELECT productos.*, usuarios.*
         FROM productos
-        INNER JOIN usuarios ON productos.id_usuario = usuarios.id_usuario
-        WHERE productos.id = %s
+        INNER JOIN usuarios ON productos.id_producto = usuarios.id_usuario
+        WHERE productos.id_producto = %s
     """
     
     cursor.execute(query, (_id,))
@@ -449,7 +450,7 @@ def admin_productos_guardar():
 def admin_productos_actualizar():
     conexion = dbconnection()
     cursor = conexion.cursor()
-    _id = request.form['txtId']
+    _id_producto = request.form['txtId']
     _nombre = request.form['txtNombre']
     _archivo1 = request.files['txtImagen1']
     _archivo2 = request.files['txtImagen2']
@@ -501,8 +502,8 @@ def admin_productos_actualizar():
         nuevoNombrevideo = request.form['txtVideo1']
 
             
-    sql = "update productos set nombre=%s, imagen1=%s, imagen2=%s, imagen3=%s, video=%s, precio=%s, descripcion=%s, moneda=%s, fecha_actualizacion=%s, id_usuario_actualiza=%s, id_categoria=%s where id=%s"
-    cursor.execute(sql, (_nombre, nuevoNombre1, nuevoNombre2, nuevoNombre3, nuevoNombrevideo, _precio,_descripcion,_moneda, fecha_actualizacion, _id_usuario_actualiza, _id_categoria, _id))
+    sql = "update productos set nombre=%s, imagen1=%s, imagen2=%s, imagen3=%s, video=%s, precio=%s, descripcion=%s, moneda=%s, fecha_actualizacion=%s, id_usuario_actualiza=%s, id_categoria=%s where id_producto=%s"
+    cursor.execute(sql, (_nombre, nuevoNombre1, nuevoNombre2, nuevoNombre3, nuevoNombrevideo, _precio,_descripcion,_moneda, fecha_actualizacion, _id_usuario_actualiza, _id_categoria, _id_producto))
     conexion.commit() 
 
     return redirect('/admin/editar')
@@ -511,8 +512,7 @@ def admin_productos_actualizar():
 @login_required
 @role_required(3)  # 3 = Usuarios
 def admin_productos_borrar():
-    _id = request.form['txtID']
-    print(_id) 
+    _id_producto = request.form['txtID']
 
     _id_usuario_actualiza = current_user.id_usuario
     fecha_actualizacion = datetime.now()
@@ -520,8 +520,8 @@ def admin_productos_borrar():
     
     conexion=dbconnection()
     cursor=conexion.cursor()
-    sql = 'update productos set id_estado=2, fecha_actualizacion=%s, id_usuario_actualiza=%s where id=%s'
-    cursor.execute(sql, (fecha_actualizacion, _id_usuario_actualiza, _id))
+    sql = 'update productos set id_estado=2, fecha_actualizacion=%s, id_usuario_actualiza=%s where id_producto=%s'
+    cursor.execute(sql, (fecha_actualizacion, _id_usuario_actualiza, _id_producto))
     conexion.commit()
 
     return redirect('/admin/editar')
@@ -596,11 +596,6 @@ def editar_perfil_actualizar():
 
     return redirect('/admin/perfil')
 
-@app.route('/admin/pago')
-@login_required
-@role_required(3)  # 3 = Usuarios
-def pago_admin():
-    return render_template('admin/pagoexitoso.html')
 
 @app.route('/admin/pagoexitoso', methods=['POST'])
 @login_required
@@ -621,6 +616,117 @@ def index_supervisor():
     if not session.get('logeado'):
         return redirect('/admin/login')
     return render_template('supersu/indexsupervisor.html')
+
+
+@app.route('/admin/carrito')
+@login_required
+def mostrar_carrito():
+    user_id = current_user.id_usuario  # Obtener el id del usuario actual
+    conexion = dbconnection()
+    cursor = conexion.cursor(pymysql.cursors.DictCursor)
+
+    # Consultar los productos en el carrito del usuario
+    cursor.execute(
+    "SELECT p.id_producto, p.nombre, p.precio, p.moneda, p.imagen1, c.cantidad "
+    "FROM carrito c "
+    "JOIN productos p ON c.id_producto = p.id_producto "
+    "WHERE c.id_usuario = %s",
+    (user_id,)
+)
+
+    carrito = cursor.fetchall()
+
+    # Calcular el total del carrito
+    total = sum(item['precio'] * item['cantidad'] for item in carrito)
+    cursor.close()
+    conexion.close()
+
+    return render_template('/admin/carrito.html', carrito=carrito, total=total)
+
+@app.route('/admin/carrito/agregar/<int:id_producto>', methods=['POST'])
+@login_required
+def agregar_al_carrito(id_producto):
+    conexion = dbconnection()
+    cursor = conexion.cursor(pymysql.cursors.DictCursor)
+
+    # Obtener los detalles del producto
+    cursor.execute(
+        "SELECT id_producto, nombre, moneda, imagen1, precio FROM productos WHERE id_producto = %s AND id_estado = 1",
+        (id_producto,)
+    )
+    producto = cursor.fetchone()
+
+    if not producto:
+        cursor.close()
+        conexion.close()
+        return redirect(url_for('mostrar_carrito'))  # Redirige si el producto no existe
+
+    user_id = current_user.id_usuario  # Obtener el id del usuario actual
+
+    # Verificar si el producto ya está en el carrito del usuario
+    cursor.execute(
+        "SELECT * FROM carrito WHERE id_usuario = %s AND id_producto = %s",
+        (user_id, id_producto)
+    )
+    existing_product = cursor.fetchone()
+
+    if existing_product:
+        # Si el producto ya existe, se actualiza la cantidad
+        cursor.execute(
+            "UPDATE carrito SET cantidad = cantidad + 1 WHERE id_usuario = %s AND id_producto = %s",
+            (user_id, id_producto)
+        )
+    else:
+        # Si el producto no está en el carrito, se inserta un nuevo registro
+        cursor.execute(
+            "INSERT INTO carrito (id_usuario, id_producto, cantidad) VALUES (%s, %s, %s)",
+            (user_id, id_producto, 1)
+        )
+
+    conexion.commit()
+    cursor.close()
+    conexion.close()
+    return redirect(url_for('mostrar_carrito'))  # Redirige al carrito actualizado
+
+
+
+@app.route('/admin/carrito/eliminar/<int:id_producto>', methods=['POST'])
+@login_required
+def eliminar_del_carrito(id_producto):
+    user_id = current_user.id_usuario  # Obtener el id del usuario actual
+    conexion = dbconnection()
+    cursor = conexion.cursor(pymysql.cursors.DictCursor)
+
+    # Eliminar el producto del carrito
+    cursor.execute(
+        "DELETE FROM carrito WHERE id_usuario = %s AND id_producto = %s",
+        (user_id, id_producto)
+    )
+
+    conexion.commit()
+    cursor.close()
+    conexion.close()
+    return redirect(url_for('mostrar_carrito'))  # Redirige al carrito actualizado
+
+
+@app.route('/admin/carrito/vaciar', methods=['POST'])
+@login_required
+def vaciar_carrito():
+    user_id = current_user.id_usuario  # Obtener el id del usuario actual
+    conexion = dbconnection()
+    cursor = conexion.cursor(pymysql.cursors.DictCursor)
+
+    # Eliminar todos los productos del carrito del usuario
+    cursor.execute(
+        "DELETE FROM carrito WHERE id_usuario = %s",
+        (user_id,)
+    )
+
+    conexion.commit()
+    cursor.close()
+    conexion.close()
+    return redirect(url_for('mostrar_carrito'))  # Redirige al carrito vacío
+
 
 # Ejecuta la app
 if __name__ == '__main__':

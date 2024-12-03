@@ -44,6 +44,9 @@
                             <a class="nav-link {% if request.path == '/admin/editar' %}active{% endif %}" href="/admin/editar">Mis Productos</a>
                         </li>
                         <li class="nav-item">
+                            <a class="nav-link {% if request.path == '/admin/carrito' %}active{% endif %}" href="/admin/carrito">Carrito</a>
+                        </li>
+                        <li class="nav-item">
                             <a class="nav-link {% if request.path == '/admin/perfil' %}active{% endif %}" href="/admin/perfil">Perfil</a>
                         </li>
                         <li class="nav-item">
@@ -93,6 +96,7 @@
                     <!-- Campo Contraseña -->
                     <div class="col-md-6">
                         <label for="txtContrasena" class="form-label">Cambiar Contraseña</label>
+                        <p>(Opcional)</p>
                         <input type="password" class="form-control mb-2" id="txtContrasena" name="txtContrasena" placeholder="Nueva contraseña">
                     
                         <label for="txtConfirmarContrasena" class="form-label">Confirmar Contraseña</label>

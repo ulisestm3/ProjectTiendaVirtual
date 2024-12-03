@@ -43,6 +43,9 @@
                             <a class="nav-link {% if request.path == '/admin/editar' %}active{% endif %}" href="/admin/editar">Mis Productos</a>
                         </li>
                         <li class="nav-item">
+                            <a class="nav-link {% if request.path == '/admin/carrito' %}active{% endif %}" href="/admin/carrito">Carrito</a>
+                        </li>
+                        <li class="nav-item">
                             <a class="nav-link {% if request.path == '/admin/perfil' %}active{% endif %}" href="/admin/perfil">Perfil</a>
                         </li>
                         <li class="nav-item">
@@ -79,7 +82,7 @@
                             </div>
                             <div class="card-body d-flex flex-column justify-content-between">
                                 <h4 class="card-title">{{ producto[1] }}</h4>
-                                <h4 class="card-title">{{producto[8]}} {{ producto[6] }}</h4>
+                                <h4 class="card-title">{{producto[8]}} {{ "{:,.2f}".format(producto[6]) }}</h4>
                                 <p class="card-text"></p>
     
                                 <form action="/admin/detalleproductos" method="post">

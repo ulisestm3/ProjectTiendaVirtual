@@ -359,3 +359,21 @@ label {
 .h-100.p-5 {
     text-align: justify;
 }
+
+.tabla-carrito {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.tabla-carrito th,
+.tabla-carrito td {
+    text-align: center;
+    padding: 10px;
+    border: 1px solid #ddd;
+}
+
+.tabla-carrito th {
+    background-color: #f4f4f4;
+    font-weight: bold;
+}
+

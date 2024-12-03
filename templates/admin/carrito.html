@@ -13,7 +13,7 @@
     <!-- Custom CSS -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
 </head>
-<body class="d-flex flex-column min-vh-100"> <!-- Flexbox para asegurar que el footer esté al fondo -->
+<body class="d-flex flex-column min-vh-100">
     <!-- Header Section -->
     <header>
         <div class="container text-center py-4">
@@ -21,7 +21,7 @@
             <p>Proyecto universitario</p>
             <p> Usuario: {{ current_user.usuario }}</p>
         </div>
-        
+
         <!-- Navigation Bar -->
         <nav class="navbar navbar-expand-lg navbar-light bg-light">
             <div class="container">
@@ -33,7 +33,6 @@
                 <div class="collapse navbar-collapse" id="navbarNav">
                     <ul class="navbar-nav ms-auto">
                         <li class="nav-item">
-                            <!-- Usa '/admin/index' para la URL de inicio de administrador -->
                             <a class="nav-link {% if request.path == '/admin' %}active{% endif %}" href="/admin">Inicio</a>
                         </li>
                         <li class="nav-item">
@@ -41,7 +40,7 @@
                         </li>
                         <li class="nav-item">
                             <a class="nav-link {% if request.path == '/admin/editar' %}active{% endif %}" href="/admin/editar">Mis Productos</a>
-                        </li>
+                        </li>   
                         <li class="nav-item">
                             <a class="nav-link {% if request.path == '/admin/carrito' %}active{% endif %}" href="/admin/carrito">Carrito</a>
                         </li>
@@ -59,39 +58,50 @@
 
     <!-- Main Content -->
     <main class="container my-5 flex-grow-1">
-        <!-- Contenido del producto -->
-        <div class="container producto-container">
-          {% for producto in productos %}
-            <h3>{{ producto[1] }}</h3>
-            <h4>{{producto[8]}} {{ "{:,.2f}".format(producto[6]) }}</h4>
-            {% if producto[7] %}
-            <h5>{{ producto[7] }}</h5>
-            <br>
-            <h6 class="custom"> Posteado por: {{producto[16]}}</h6>
-            <h6 class="custom"> Fecha: {{producto[10]}}</h6>
-            <br>
-            {% endif %}
-            <form action="/admin/carrito/agregar/{{ producto[0] }}" method="post">
-                <button class="btn btn-primary comprar-btn">Agregar al carrito <i class="fas fa-shopping-cart"></i></button>
-            </form>
-            <br>
+        {% if carrito %}
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Imagen</th>
+                        <th>Nombre</th>
+                        <th>Moneda</th>
+                        <th>Precio</th>
+                        <th>Cantidad</th>
+                        <th>Subtotal</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in carrito%}
+                    <tr>
+                        <td><img src="/img/{{ item['imagen1'] }}" alt="{{ item['imagen1'] }}" style="max-width: 100px; max-height: 100px;"></td>
+                        <td>{{ item['nombre'] }}</td>
+                        <td>{{ item['moneda'] }}</td>
+                        <td>{{ "{:,.2f}".format(item['precio']) }}</td>
+                        <td>{{ item['cantidad'] }}</td>
+                        <td>{{ "{:,.2f}".format(item['precio'] * item['cantidad']) }}</td>
+                        <td>
+                            <form action="/admin/carrito/eliminar/{{ item['id_producto'] }}" method="post" style="display:inline;">
+                                <button class="btn btn-danger btn-sm">Eliminar</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
 
-            <input type="hidden" name="producto_id" value="{{ producto[0] }}">
-            <img src="/img/{{ producto[2] }}" class="card-img-top" alt="{{ producto[2] }}" style="width: 100%;">
-            {% if producto[3] %}
-              <img src="/img/{{ producto[3] }}" class="card-img-top" alt="{{ producto[3] }}" style="width: 100%;">
-            {% endif %}
-            {% if producto[4] %}
-              <img src="/img/{{ producto[4] }}" class="card-img-top" alt="{{ producto[4] }}" style="width: 100%;">
-            {% endif %}
-            {% if producto[5] %}
-              <video src="/video/{{ producto[5] }}" width="100%" controls></video>
-            {% endif %}
-          {% endfor %}
-        </div>
+            <!-- Botones de Vaciar Carrito y Ir a Pagar -->
+            <div class="d-flex justify-content-between">
+                <form action="/admin/carrito/vaciar" method="post">
+                    <button class="btn btn-warning">Vaciar Carrito</button>
+                </form>
+                <a href="/admin/pago" class="btn btn-primary">Ir a Pagar</a>
+            </div>
 
+        {% else %}
+            <p>No hay productos en el carrito.</p>
+        {% endif %}
     </main>
-    
 
     <!-- Footer Section -->
     <footer class="text-white py-3 mt-auto">

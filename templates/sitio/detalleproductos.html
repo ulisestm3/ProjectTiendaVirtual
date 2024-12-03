@@ -55,6 +55,9 @@
                             <a class="nav-link {% if request.path == '/productos' %}active{% endif %}" href="/productos">Productos</a>
                         </li>
                         <li class="nav-item">
+                          <a class="nav-link {% if request.path == '/productos' %}active{% endif %}" href="/productos">Productos</a>
+                      </li>
+                        <li class="nav-item">
                             <a class="nav-link {% if request.path == '/admin/login' %}active{% endif %}" href="/admin/login">Login</a>
                         </li>
                     </ul>
@@ -69,11 +72,11 @@
         <div class="container producto-container">
           {% for producto in productos %}
             <h3>{{ producto[1] }}</h3>
-            <h4>{{producto[8]}} {{ producto[6] }}</h4>
+            <h4>{{producto[8]}} {{ "{:,.2f}".format(producto[6]) }}</h4>
             {% if producto[7] %}
             <h5>{{ producto[7] }}</h5>
-            <br> 
-            <h6 class="custom"> Posteado por: {{producto[18]}} {{producto[19]}} </h6>
+            <br>
+            <h6 class="custom"> Posteado por: {{producto[16]}} </h6>
             <h6 class="custom"> Fecha: {{producto[10]}}</h6>
             <br>
             {% endif %}
