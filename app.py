@@ -282,12 +282,22 @@ def admin_login_post():
 @login_required
 @role_required(3)  # 3 = Usuarios
 def index_productos():
+    user_id = current_user.id_usuario  # ID del usuario actual
     conexion = dbconnection()
     cursor = conexion.cursor()
-    cursor.execute("SELECT * FROM productos WHERE id_estado=1")
+    
+    # Excluir productos del usuario actual
+    query = """
+        SELECT * 
+        FROM productos 
+        WHERE id_estado = 1 AND id_usuario != %s
+    """
+    cursor.execute(query, (user_id,))
     productos = cursor.fetchall()
+    
     conexion.close()
     return render_template('admin/index.html', productos=productos)
+
 
 @app.route('/admin/detalleproductos', methods=['POST'])
 @login_required
