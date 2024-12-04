@@ -613,21 +613,6 @@ def editar_perfil_actualizar():
 def pago_exitoso():
     return render_template('admin/pagoexitoso.html')
 
-@app.route('/supersu/indexadministrador')
-@role_required(1)  # 1 = Administrador
-def index_administrador():
-    if not session.get('logeado'):
-        return redirect('/admin/login')
-    return render_template('supersu/indexadministrador.html')
-
-@app.route('/supersu/indexsupervisor')
-@role_required(2)  # 2 = Usuarios
-def index_supervisor():
-    if not session.get('logeado'):
-        return redirect('/admin/login')
-    return render_template('supersu/indexsupervisor.html')
-
-
 @app.route('/admin/carrito')
 @login_required
 def mostrar_carrito():
@@ -922,13 +907,14 @@ def calcular_total_detalles(detalles, moneda_pedido):
     tasa_cambio = Decimal(36.50)  # Convertir la tasa de cambio a Decimal
     total_cordobas = Decimal(0)  # Asegurarse de que total_cordobas también sea Decimal
 
-    # Calcular el total en córdobas
+    # Calcular el total en córdobas y dólares
     for item in detalles:
-        if moneda_pedido == "C$":
-            total_cordobas += Decimal(item["subtotal"]) * tasa_cambio  # Convertir subtotal a Decimal si es necesario
-        else:
+        if item["moneda"] == "U$":  # Si el producto está en dólares
+            total_cordobas += Decimal(item["subtotal"]) * tasa_cambio  # Convertir a córdobas
+        else:  # Si el producto está en córdobas
             total_cordobas += Decimal(item["subtotal"])  # Sumar directamente en córdobas
 
+    # Calcular el total en dólares (si es necesario)
     total_dolares = total_cordobas / tasa_cambio  # Convertir total a dólares
 
     return total_cordobas, total_dolares
@@ -956,6 +942,148 @@ def mis_pedidos():
 
     return render_template('admin/mis_pedidos.html', pedidos=pedidos)
 
+
+@app.route('/supersu/indexadministrador')
+@login_required
+@role_required(1)  # 1 = Administrador
+def dashboard_admin():
+    if not session.get('logeado'):
+        return redirect('/admin/login')
+
+    conexion = dbconnection()
+    cursor = conexion.cursor(pymysql.cursors.DictCursor)
+    
+    try:
+        # Obtener métricas generales
+        cursor.execute("SELECT COUNT(*) AS total_usuarios FROM usuarios")
+        total_usuarios = cursor.fetchone()["total_usuarios"]
+        
+        cursor.execute("SELECT COUNT(*) AS total_productos FROM productos")
+        total_productos = cursor.fetchone()["total_productos"]
+        
+        cursor.execute("SELECT COUNT(*) AS total_productos_vendidos FROM productos WHERE id_estado = 4")
+        total_productos_vendidos = cursor.fetchone()["total_productos_vendidos"]
+        
+        cursor.execute("SELECT COUNT(*) AS total_productos_activos FROM productos WHERE id_estado = 1")
+        total_productos_activos = cursor.fetchone()["total_productos_activos"]
+
+        cursor.execute("SELECT COUNT(*) AS total_pedidos FROM pedidos")
+        total_pedidos = cursor.fetchone()["total_pedidos"]
+
+        cursor.execute("SELECT COUNT(*) AS total_productos_inactivos FROM productos WHERE id_estado = 2")
+        total_productos_inactivos = cursor.fetchone()["total_productos_inactivos"]
+        
+        # Obtener lista de pedidos con detalles, ordenados por fecha_pedido en orden descendente
+        cursor.execute("""
+            SELECT p.id_pedido, u.usuario, p.fecha_pedido, p.moneda, p.total
+            FROM pedidos p
+            JOIN usuarios u ON p.id_usuario = u.id_usuario
+            ORDER BY p.fecha_pedido DESC
+        """)
+        pedidos = cursor.fetchall()
+
+        
+        # Obtener detalles de los pedidos
+        cursor.execute("""
+            SELECT dp.id_pedido, pr.nombre AS producto, dp.moneda, dp.precio, dp.cantidad, dp.subtotal 
+            FROM detallepedidos dp
+            JOIN productos pr ON dp.id_producto = pr.id_producto
+        """)
+        detalles_pedidos = cursor.fetchall()
+        
+        return render_template(
+            'supersu/indexadministrador.html',
+            total_usuarios=total_usuarios,
+            total_productos=total_productos,
+            total_productos_vendidos=total_productos_vendidos,
+            total_pedidos=total_pedidos,
+            pedidos=pedidos,
+            detalles_pedidos=detalles_pedidos,
+            total_productos_activos=total_productos_activos,
+            total_productos_inactivos=total_productos_inactivos
+        )
+    except Exception as e:
+        flash(f"Error al cargar el dashboard: {e}", "danger")
+        return redirect('/admin/login')
+    finally:
+        cursor.close()
+        conexion.close()
+
+@app.route('/supersu/pedido/<int:id_pedido>')
+@login_required
+@role_required(1)  # 1 = Administrador
+def supersu_mostrar_pedido(id_pedido):
+    # Obtener el ID del usuario asociado al pedido
+    conexion = dbconnection()
+    cursor = conexion.cursor(pymysql.cursors.DictCursor)
+
+    # Consultar el pedido y su usuario asociado
+    query = """
+        SELECT 
+            p.id_pedido AS numero_factura, p.fecha_pedido, p.total, p.moneda, p.id_usuario
+        FROM pedidos p
+        WHERE p.id_pedido = %s
+    """
+    cursor.execute(query, (id_pedido,))
+    pedido = cursor.fetchone()
+
+    if not pedido:
+        # Si no se encuentra el pedido, redirigir o mostrar un mensaje de error
+        return redirect(url_for('dashboard_admin'))  # O mostrar una página de error
+
+    # Obtener los detalles del pedido
+    query_detalles = """
+        SELECT 
+            dp.id_producto, dp.cantidad, dp.moneda, dp.precio, dp.subtotal, p.nombre, u.usuario as vendedor
+        FROM detallepedidos dp
+        JOIN productos p ON dp.id_producto = p.id_producto
+        JOIN usuarios u ON p.id_usuario = u.id_usuario
+        WHERE dp.id_pedido = %s
+    """
+    cursor.execute(query_detalles, (id_pedido,))
+    detalles = cursor.fetchall()
+
+    # Consultar los datos del usuario con el id_usuario del pedido
+    query_usuario = """
+        SELECT nombre, apellido, telefono, direccion, email
+        FROM usuarios
+        WHERE id_usuario = %s
+    """
+    cursor.execute(query_usuario, (pedido['id_usuario'],))
+    usuario = cursor.fetchone()
+
+    # Calcular el total en córdobas y dólares
+    total_cordobas, total_dolares = calcular_total_detalles(detalles, pedido['moneda'])
+
+    conexion.close()
+
+    # Pasar los datos del usuario junto con el pedido y los detalles a la plantilla
+    return render_template('supersu/mostrar_pedido.html', pedido=pedido, detalles=detalles, total_cordobas=total_cordobas, total_dolares=total_dolares, usuario=usuario)
+
+def calcular_total_detalles(detalles, moneda_pedido):
+    tasa_cambio = Decimal(36.50)  # Convertir la tasa de cambio a Decimal
+    total_cordobas = Decimal(0)  # Asegurarse de que total_cordobas también sea Decimal
+
+    # Calcular el total en córdobas y dólares
+    for item in detalles:
+        if item["moneda"] == "U$":  # Si el producto está en dólares
+            total_cordobas += Decimal(item["subtotal"]) * tasa_cambio  # Convertir a córdobas
+        else:  # Si el producto está en córdobas
+            total_cordobas += Decimal(item["subtotal"])  # Sumar directamente en córdobas
+
+    # Calcular el total en dólares (si es necesario)
+    total_dolares = total_cordobas / tasa_cambio  # Convertir total a dólares
+
+    return total_cordobas, total_dolares
+
+
+
+@app.route('/supersu/indexsupervisor')
+@role_required(2)  # 2 = Usuarios
+def index_supervisor():
+    if not session.get('logeado'):
+        return redirect('/admin/login')
+    return render_template('supersu/indexsupervisor.html')
 
 # Ejecuta la app
 if __name__ == '__main__':

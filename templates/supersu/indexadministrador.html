@@ -34,14 +34,7 @@
                     <ul class="navbar-nav ms-auto">
                         <li class="nav-item">
                             <!-- Cambia el href para que apunte a /supersu/indexadministrador -->
-                            <a class="nav-link {% if request.path == '/supersu/indexadministrador' %}active{% endif %}" 
-                               href="/supersu/indexadministrador">Inicio</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link {% if request.path == '/admin/nosotros' %}active{% endif %}" href="/admin/nosotros">Nosotros</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link {% if request.path == '/admin/editar' %}active{% endif %}" href="/admin/editar">Mis Productos</a>
+                            <a class="nav-link {% if request.path == '/supersu/indexadministrador' %}active{% endif %}" href="/supersu/indexadministrador">Inicio</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="{{ url_for('admin_logout') }}">Salir</a>
@@ -63,6 +56,86 @@
                             Dasboard de administrador
                         </p>
                     </div>
+                </div>
+            </div>
+            <div class="container my-5">
+                <h3 class="text-center mb-4">Resumen de Métricas</h3>
+                <div class="table-responsive">
+                    <table class="table table-bordered text-center">
+                        <thead class="table-dark">
+                            <tr>
+                                <th class="bg-success text-white">Categoría</th>
+                                <th class="bg-success text-white" >Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Cuentas de usuarios</td>
+                                <td>{{ total_usuarios }}</td>
+                            </tr>
+                            <tr>
+                                <td>Productos publicados</td>
+                                <td>{{ total_productos }}</td>
+                            </tr>
+                            <tr>
+                                <td>Productos vendidos</td>
+                                <td>{{ total_productos_vendidos }}</td>
+                            </tr>
+                            <tr>
+                                <td>Productos activos</td>
+                                <td>{{ total_productos_activos }}</td>
+                            </tr>
+                            <tr>
+                                <td>Productos inactivos</td>
+                                <td>{{ total_productos_inactivos }}</td>
+                            </tr>
+                            <tr>
+                                <td>Pedidos exitosos</td>
+                                <td>{{ total_pedidos }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            
+                <!-- Tabla de Pedidos -->
+                <div class="container mt-5">
+                    <h3 class="text-center">Control de Pedidos</h3>
+                    <h6 class="text-center">Estos son los pedidos de la página</h6>
+            
+                    {% if pedidos %}
+                    <table class="table table-bordered table-striped mt-4">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>Factura</th>
+                                <th>Fecha</th>
+                                <th>Moneda</th>
+                                <th>Total</th>
+                                <th>Detalles</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for pedido in pedidos %}
+                            <tr>
+                                <td>{{ pedido.id_pedido }}</td>
+                                <td>{{ pedido.fecha_pedido }}</td>
+                                <td>{{ pedido.moneda }}</td>
+                                <td>{{  "{:,.2f}".format(pedido.total) }}</td>
+                                <td>
+                                    <a href="{{ url_for('supersu_mostrar_pedido', id_pedido=pedido.id_pedido) }}" class="btn btn-primary btn-sm">
+                                        Ver Detalles
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    {% else %}
+                    <div class="alert alert-warning text-center" role="alert">
+                        No has realizado pedidos todavía.
+                    </div>
+                    {% endif %}
                 </div>
             </div>
     </main>

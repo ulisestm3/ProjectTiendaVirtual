@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Tienda en línea Nica Shangri-La, una plataforma que conecta a compradores y vendedores locales en Nicaragua.">
+    <title>NicaShangrila</title>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous" />
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body class="d-flex flex-column min-vh-100"> <!-- Flexbox para asegurar que el footer esté al fondo -->
+    <!-- Header Section -->
+    <header>
+        <div class="container text-center py-4">
+            <h1>Tienda en Línea</h1>
+            <p>Proyecto Universitario</p>
+            <p> Usuario: {{ current_user.usuario }}</p>
+        </div>
+
+        <!-- Navigation Bar -->
+        <nav class="navbar navbar-expand-lg navbar-light bg-light">
+            <div class="container">
+                <a class="navbar-brand" href="/supersu/indexadministrador">Nica Shangri-La</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                    aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav ms-auto">
+                        <li class="nav-item">
+                            <!-- Cambia el href para que apunte a /supersu/indexadministrador -->
+                            <a class="nav-link {% if request.path == '/supersu/indexadministrador' %}active{% endif %}" href="/supersu/indexadministrador">Inicio</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('admin_logout') }}">Salir</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container my-5 flex-grow-1">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-sm-6">
+                    <img src="/img/Logotipo_para_Nica_ShangrilaNBG.png" alt="Company Logo" class="img-fluid">
+                </div>
+                <div class="col-sm-6 text-right">
+                    <h3><strong>Factura Electrónica</strong></h3>
+                    <h2><strong>#{{ pedido.numero_factura }}</strong></h2>
+                    <p><strong>Fecha: {{ pedido.fecha_pedido }}</strong></p>
+                </div>
+            </div>
+        </div>
+
+        <div class="invoice-customer">
+            <h3>Datos del Cliente</h3>
+            <p><strong>Nombre:</strong> {{ usuario.nombre }} {{ usuario.apellido }}</p>
+            <p><strong>Teléfono:</strong> {{ usuario.telefono }}</p>
+            <p><strong>Dirección:</strong> {{ usuario.direccion }}</p>
+            <p><strong>Correo:</strong> {{ usuario.email }}</p>
+        </div>
+        
+
+        <div class="invoice-products">
+            <h3>Detalle de la Compra</h3>
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Producto</th>
+                        <th>Moneda</th>
+                        <th>Precio Unitario</th>
+                        <th>Cantidad</th>
+                        <th>Subtotal</th>
+                        <th>Vendedor</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in detalles %}
+                        <tr>
+                            <td>{{ item.nombre }}</td>
+                            <td>{{ item.moneda }}</td>
+                            <td>{{ "{:,.2f}".format(item.precio) }}</td>
+                            <td>{{ item.cantidad }}</td>
+                            <td>{{ "{:,.2f}".format(item.subtotal) }}</td>
+                            <td>{{ item.vendedor }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <div class="invoice-totals">
+            <p class="text-end">
+                <strong>Total en Córdobas: C$ 
+                  {{ "{:,.2f}".format(total_cordobas) }}
+                </strong>
+              </p>
+              <p class="text-end">
+                <strong>Total en Dólares: U$ 
+                  {{ "{:,.2f}".format(total_dolares) }}
+                </strong>
+              </p>
+        </div>
+
+        <!-- Export to PDF Button -->
+        <button class="btn exportar btn-success" type="button" onclick="exportarPDF()">Descargar</button>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="text-white py-3 mt-auto">
+        <div class="container text-center">
+            <p>Email: ulisestm3@gmail.com</p>
+            <p>Web creada por Ulises Zuniga</p>
+            <p>&copy; Univalle 2024 - 220100164</p>
+        </div>
+    </footer>
+
+    <script>
+        // Función para exportar a PDF
+        function exportarPDF() {
+            const btnDescargar = document.querySelector('.exportar'); // Selección del botón con clase 'exportar'
+            
+            // Asegurarse de que el botón esté oculto antes de generar el PDF
+            btnDescargar.style.display = 'none';
+    
+            const element = document.querySelector('main'); // Apuntando al contenedor principal
+            const opt = {
+                margin:       0.5,
+                filename:     'Detalle_pedido.pdf',
+                image:        { type: 'jpeg', quality: 0.98 },
+                html2canvas:  { scale: 2 },
+                jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' },
+                pagebreak:    { mode: 'avoid-all' }
+            };
+    
+            // Generar el PDF y mostrar la opción de descarga
+            html2pdf().set(opt).from(element).save().then(function() {
+                // Restaurar el botón después de generar el PDF
+                btnDescargar.style.display = 'inline-block';
+            });
+        }
+    </script>
+    
+    
+
+    <!-- Bootstrap Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.2/html2pdf.bundle.js"></script>
+
+</body>
+</html>
