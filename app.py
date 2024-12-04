@@ -659,44 +659,51 @@ def agregar_al_carrito(id_producto):
     conexion = dbconnection()
     cursor = conexion.cursor(pymysql.cursors.DictCursor)
 
-    # Obtener los detalles del producto
-    cursor.execute(
-        "SELECT id_producto, nombre, moneda, imagen1, precio FROM productos WHERE id_producto = %s AND id_estado = 1",
-        (id_producto,)
-    )
-    producto = cursor.fetchone()
+    try:
+        # Obtener los detalles del producto incluyendo su propietario (id_usuario)
+        query_producto = """
+            SELECT id_producto, nombre, moneda, imagen1, precio, id_usuario 
+            FROM productos 
+            WHERE id_producto = %s AND id_estado = 1
+        """
+        cursor.execute(query_producto, (id_producto,))
+        producto = cursor.fetchone()
 
-    if not producto:
+        if not producto:
+            flash("El producto no existe o no está disponible.", "warning")
+            return redirect(url_for('mostrar_productos'))  # Redirige si el producto no existe
+
+        user_id = current_user.id_usuario  # Obtener el id del usuario actual
+
+        # Verificar si el producto pertenece al usuario actual
+        if producto["id_usuario"] == user_id:
+            flash("No puedes agregar tu propio producto al carrito.", "danger")
+            return redirect('/admin/editar')
+
+        # Verificar si el producto ya está en el carrito del usuario
+        query_carrito = "SELECT * FROM carrito WHERE id_usuario = %s AND id_producto = %s"
+        cursor.execute(query_carrito, (user_id, id_producto))
+        existing_product = cursor.fetchone()
+
+        if existing_product:
+            # Si el producto ya existe, se actualiza la cantidad
+            query_update = "UPDATE carrito SET cantidad = cantidad + 1 WHERE id_usuario = %s AND id_producto = %s"
+            cursor.execute(query_update, (user_id, id_producto))
+        else:
+            # Si el producto no está en el carrito, se inserta un nuevo registro
+            query_insert = "INSERT INTO carrito (id_usuario, id_producto, cantidad) VALUES (%s, %s, %s)"
+            cursor.execute(query_insert, (user_id, id_producto, 1))
+
+        conexion.commit()
+        flash("Producto agregado al carrito.", "success")
+        return redirect(url_for('mostrar_carrito'))  # Redirige al carrito actualizado
+    except Exception as e:
+        conexion.rollback()
+        flash(f"Error al agregar el producto al carrito: {str(e)}", "danger")
+        return redirect(url_for('mostrar_productos'))
+    finally:
         cursor.close()
         conexion.close()
-        return redirect(url_for('mostrar_carrito'))  # Redirige si el producto no existe
-
-    user_id = current_user.id_usuario  # Obtener el id del usuario actual
-
-    # Verificar si el producto ya está en el carrito del usuario
-    cursor.execute(
-        "SELECT * FROM carrito WHERE id_usuario = %s AND id_producto = %s",
-        (user_id, id_producto)
-    )
-    existing_product = cursor.fetchone()
-
-    if existing_product:
-        # Si el producto ya existe, se actualiza la cantidad
-        cursor.execute(
-            "UPDATE carrito SET cantidad = cantidad + 1 WHERE id_usuario = %s AND id_producto = %s",
-            (user_id, id_producto)
-        )
-    else:
-        # Si el producto no está en el carrito, se inserta un nuevo registro
-        cursor.execute(
-            "INSERT INTO carrito (id_usuario, id_producto, cantidad) VALUES (%s, %s, %s)",
-            (user_id, id_producto, 1)
-        )
-
-    conexion.commit()
-    cursor.close()
-    conexion.close()
-    return redirect(url_for('mostrar_carrito'))  # Redirige al carrito actualizado
 
 
 
