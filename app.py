@@ -795,6 +795,30 @@ def crear_pedido():
     cursor = conexion.cursor(pymysql.cursors.DictCursor)
 
     try:
+        # Verificar si todos los productos del carrito tienen id_estado = 1
+        productos_vendidos = []
+        for item in cart_items:
+            cursor.execute(
+                "SELECT id_estado FROM productos WHERE id_producto = %s", 
+                (item["id_producto"],)
+            )
+            producto = cursor.fetchone()
+            if not producto or producto["id_estado"] != 1:
+                productos_vendidos.append(item["id_producto"])
+        
+        if productos_vendidos:
+            # Quitar los productos vendidos del carrito
+            for id_producto in productos_vendidos:
+                cursor.execute(
+                    "DELETE FROM carrito WHERE id_usuario = %s AND id_producto = %s", 
+                    (id_usuario, id_producto)
+                )
+            conexion.commit()
+
+            # Mensaje al usuario y redirigir al carrito
+            flash("Algunos productos fueron vendidos y se han eliminado del carrito.", "danger")
+            return redirect(url_for('mostrar_carrito'))
+
         # Insertar el pedido
         query_pedido = """
             INSERT INTO pedidos (id_usuario, fecha_pedido, moneda, total)
@@ -819,12 +843,13 @@ def crear_pedido():
                 item["subtotal"]
             ))
         
-        # Actualizar el estado de cada producto a 4 (indicado en la tabla productos)
-            query_actualizar_estado = """
-                UPDATE productos 
-                SET id_estado = 4 
-                WHERE id_producto = %s
-            """
+        # Actualizar el estado de cada producto a 4
+        query_actualizar_estado = """
+            UPDATE productos 
+            SET id_estado = 4 
+            WHERE id_producto = %s
+        """
+        for item in cart_items:
             cursor.execute(query_actualizar_estado, (item["id_producto"],))
 
         # Limpiar el carrito del usuario
@@ -833,6 +858,7 @@ def crear_pedido():
         conexion.commit()
         flash("Pedido creado exitosamente.", "success")
         return redirect('/admin/mis_pedidos')  # Redirige a la lista de pedidos
+
     except Exception as e:
         conexion.rollback()
         flash("Error al crear el pedido: " + str(e), "danger")
@@ -840,6 +866,7 @@ def crear_pedido():
     finally:
         cursor.close()
         conexion.close()
+
 
 @app.route('/admin/pedido/<int:id_pedido>')
 @login_required

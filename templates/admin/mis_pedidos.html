@@ -64,6 +64,15 @@
 
     <!-- Main Content -->
     <main class="container my-5 flex-grow-1">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div>
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} text-center">{{ message }}</div>
+                {% endfor %}
+                </div>
+            {% endif %}
+            {% endwith %}
         <div class="container mt-5">
             <h3 class="text-center">Mis Pedidos</h3>
             <h6 class="text-center">Aquí puedes consultar los pedidos que has realizado.</h6>
