@@ -1,11 +1,11 @@
-from flask import Flask, render_template, request, redirect, session, send_from_directory, url_for
+from flask import Flask, flash, render_template, request, redirect, session, send_from_directory, url_for
 from flask_login import LoginManager, login_user, logout_user, login_required, UserMixin, current_user
 from datetime import datetime
 from functools import wraps #decorador
+from decimal import Decimal
 from werkzeug.security import generate_password_hash, check_password_hash
 import config
 import pymysql
-import decimal
 import os
 
 app = Flask(__name__)
@@ -301,13 +301,13 @@ def detalleproductos_admin():
     query = """
         SELECT productos.*, usuarios.*
         FROM productos
-        INNER JOIN usuarios ON productos.id_producto = usuarios.id_usuario
+        INNER JOIN usuarios ON productos.id_usuario = usuarios.id_usuario
         WHERE productos.id_producto = %s
     """
     
     cursor.execute(query, (_id,))
     resultado = cursor.fetchall()
-    
+    print(resultado)
     # Cierra la conexión
     conexion.close()
     
@@ -726,6 +726,191 @@ def vaciar_carrito():
     cursor.close()
     conexion.close()
     return redirect(url_for('mostrar_carrito'))  # Redirige al carrito vacío
+
+
+@app.route('/admin/pago')
+@login_required
+def obtener_productos_carrito():
+    id_usuario = current_user.id_usuario
+    cart_items = obtener_productos_carrito(id_usuario)
+    total_cordobas, total_dolares = calcular_total(cart_items)
+    return render_template('admin/pago.html', cart_items=cart_items, total_cordobas=total_cordobas, total_dolares=total_dolares)
+
+def obtener_productos_carrito(id_usuario):
+    conexion = dbconnection()
+    cursor = conexion.cursor(pymysql.cursors.DictCursor)
+    query = """
+        SELECT 
+            p.id_producto, p.nombre, p.imagen1, p.imagen2, p.imagen3, p.video, 
+            p.precio, p.descripcion, p.moneda, c.cantidad, 
+            (p.precio * c.cantidad) AS subtotal
+        FROM carrito c
+        JOIN productos p ON c.id_producto = p.id_producto
+        WHERE c.id_usuario = %s
+    """
+    cursor.execute(query, (id_usuario,))
+    return cursor.fetchall()
+
+def calcular_total(cart_items):
+    tasa_cambio = 36.50  # Tasa de cambio fija
+    total_cordobas = 0
+    for item in cart_items:
+        if item["moneda"] == "U$":
+            total_cordobas += item["subtotal"] * tasa_cambio  # Convertir a córdobas
+        else:
+            total_cordobas += item["subtotal"]  # Sumar directamente en córdobas
+    total_dolares = total_cordobas / tasa_cambio  # Convertir total a dólares
+    return total_cordobas, total_dolares
+
+@app.route('/admin/pedido/crear', methods=['POST'])
+@login_required
+def crear_pedido():
+    id_usuario = current_user.id_usuario  # Obtener el ID del usuario actual
+    moneda = request.form.get('moneda', 'C$')  # Obtener moneda del formulario (C$ por defecto)
+    cart_items = obtener_productos_carrito(id_usuario)  # Obtener productos del carrito
+    total_cordobas, total_dolares = calcular_total(cart_items)  # Calcular totales
+
+    if not cart_items:
+        flash("No hay productos en el carrito.", "warning")
+        return redirect(url_for('mostrar_carrito'))
+
+    conexion = dbconnection()
+    cursor = conexion.cursor(pymysql.cursors.DictCursor)
+
+    try:
+        # Insertar el pedido
+        query_pedido = """
+            INSERT INTO pedidos (id_usuario, fecha_pedido, moneda, total)
+            VALUES (%s, NOW(), %s, %s)
+        """
+        total = total_cordobas if moneda == "C$" else total_dolares
+        cursor.execute(query_pedido, (id_usuario, moneda, total))
+        id_pedido = cursor.lastrowid  # Obtener el ID del pedido creado
+
+        # Insertar los detalles del pedido
+        query_detalle = """
+            INSERT INTO detallepedidos (id_pedido, id_producto, moneda, precio, cantidad, subtotal)
+            VALUES (%s, %s, %s, %s, %s, %s)
+        """
+        for item in cart_items:
+            cursor.execute(query_detalle, (
+                id_pedido,
+                item["id_producto"],
+                item["moneda"],
+                item["precio"],
+                item["cantidad"],
+                item["subtotal"]
+            ))
+        
+        # Actualizar el estado de cada producto a 4 (indicado en la tabla productos)
+            query_actualizar_estado = """
+                UPDATE productos 
+                SET id_estado = 4 
+                WHERE id_producto = %s
+            """
+            cursor.execute(query_actualizar_estado, (item["id_producto"],))
+
+        # Limpiar el carrito del usuario
+        cursor.execute("DELETE FROM carrito WHERE id_usuario = %s", (id_usuario,))
+
+        conexion.commit()
+        flash("Pedido creado exitosamente.", "success")
+        return redirect('/admin/mis_pedidos')  # Redirige a la lista de pedidos
+    except Exception as e:
+        conexion.rollback()
+        flash("Error al crear el pedido: " + str(e), "danger")
+        return redirect(url_for('mostrar_carrito'))
+    finally:
+        cursor.close()
+        conexion.close()
+
+@app.route('/admin/pedido/<int:id_pedido>')
+@login_required
+def mostrar_pedido(id_pedido):
+    # Obtener el ID del usuario asociado al pedido
+    conexion = dbconnection()
+    cursor = conexion.cursor(pymysql.cursors.DictCursor)
+
+    # Consultar el pedido y su usuario asociado
+    query = """
+        SELECT 
+            p.id_pedido AS numero_factura, p.fecha_pedido, p.total, p.moneda, p.id_usuario
+        FROM pedidos p
+        WHERE p.id_pedido = %s
+    """
+    cursor.execute(query, (id_pedido,))
+    pedido = cursor.fetchone()
+
+    if not pedido:
+        # Si no se encuentra el pedido, redirigir o mostrar un mensaje de error
+        return redirect(url_for('mis_pedidos'))  # O mostrar una página de error
+
+    # Obtener los detalles del pedido
+    query_detalles = """
+        SELECT 
+            dp.id_producto, dp.cantidad, dp.moneda, dp.precio, dp.subtotal, p.nombre, u.usuario as vendedor
+        FROM detallepedidos dp
+        JOIN productos p ON dp.id_producto = p.id_producto
+        JOIN usuarios u ON p.id_usuario = u.id_usuario
+        WHERE dp.id_pedido = %s
+    """
+    cursor.execute(query_detalles, (id_pedido,))
+    detalles = cursor.fetchall()
+
+    # Consultar los datos del usuario con el id_usuario del pedido
+    query_usuario = """
+        SELECT nombre, apellido, telefono, direccion, email
+        FROM usuarios
+        WHERE id_usuario = %s
+    """
+    cursor.execute(query_usuario, (pedido['id_usuario'],))
+    usuario = cursor.fetchone()
+
+    # Calcular el total en córdobas y dólares
+    total_cordobas, total_dolares = calcular_total_detalles(detalles, pedido['moneda'])
+
+    conexion.close()
+
+    # Pasar los datos del usuario junto con el pedido y los detalles a la plantilla
+    return render_template('admin/mostrar_pedido.html', pedido=pedido, detalles=detalles, total_cordobas=total_cordobas, total_dolares=total_dolares, usuario=usuario)
+
+def calcular_total_detalles(detalles, moneda_pedido):
+    tasa_cambio = Decimal(36.50)  # Convertir la tasa de cambio a Decimal
+    total_cordobas = Decimal(0)  # Asegurarse de que total_cordobas también sea Decimal
+
+    # Calcular el total en córdobas
+    for item in detalles:
+        if moneda_pedido == "C$":
+            total_cordobas += Decimal(item["subtotal"]) * tasa_cambio  # Convertir subtotal a Decimal si es necesario
+        else:
+            total_cordobas += Decimal(item["subtotal"])  # Sumar directamente en córdobas
+
+    total_dolares = total_cordobas / tasa_cambio  # Convertir total a dólares
+
+    return total_cordobas, total_dolares
+
+
+@app.route('/admin/mis_pedidos')
+@login_required
+def mis_pedidos():
+    user_id = current_user.id_usuario  # Obtener el ID del usuario actual
+    conexion = dbconnection()
+    cursor = conexion.cursor(pymysql.cursors.DictCursor)
+
+    # Consultar los pedidos del usuario activo
+    query = """
+        SELECT 
+            p.id_pedido, p.fecha_pedido, p.total, p.moneda 
+        FROM pedidos p
+        WHERE p.id_usuario = %s
+        ORDER BY p.fecha_pedido DESC
+    """
+    cursor.execute(query, (user_id,))
+    pedidos = cursor.fetchall()
+
+    conexion.close()
+
+    return render_template('admin/mis_pedidos.html', pedidos=pedidos)
 
 
 # Ejecuta la app
