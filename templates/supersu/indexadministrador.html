@@ -37,6 +37,9 @@
                             <a class="nav-link {% if request.path == '/supersu/indexadministrador' %}active{% endif %}" href="/supersu/indexadministrador">Inicio</a>
                         </li>
                         <li class="nav-item">
+                            <a class="nav-link {% if request.path == '/supersu/editar' %}active{% endif %}" href="/supersu/editar">Productos</a>
+                        </li>                        
+                        <li class="nav-item">
                             <a class="nav-link" href="{{ url_for('admin_logout') }}">Salir</a>
                         </li>
                     </ul>
@@ -61,7 +64,7 @@
             <div class="container my-5">
                 <h3 class="text-center mb-4">Resumen de Métricas</h3>
                 <div class="table-responsive">
-                    <table class="table table-bordered text-center">
+                    <table class="table table-bordered text-left">
                         <thead class="table-dark">
                             <tr>
                                 <th class="bg-success text-white">Categoría</th>
@@ -71,27 +74,27 @@
                         <tbody>
                             <tr>
                                 <td>Cuentas de usuarios</td>
-                                <td>{{ total_usuarios }}</td>
+                                <td class="text-center">{{ total_usuarios }}</td>
                             </tr>
                             <tr>
                                 <td>Productos publicados</td>
-                                <td>{{ total_productos }}</td>
+                                <td class="text-center">{{ total_productos }}</td>
                             </tr>
                             <tr>
                                 <td>Productos vendidos</td>
-                                <td>{{ total_productos_vendidos }}</td>
+                                <td class="text-center">{{ total_productos_vendidos }}</td>
                             </tr>
                             <tr>
                                 <td>Productos activos</td>
-                                <td>{{ total_productos_activos }}</td>
+                                <td class="text-center">{{ total_productos_activos }}</td>
                             </tr>
                             <tr>
                                 <td>Productos inactivos</td>
-                                <td>{{ total_productos_inactivos }}</td>
+                                <td class="text-center">{{ total_productos_inactivos }}</td>
                             </tr>
                             <tr>
                                 <td>Pedidos exitosos</td>
-                                <td>{{ total_pedidos }}</td>
+                                <td class="text-center">{{ total_pedidos }}</td>
                             </tr>
                         </tbody>
                     </table>

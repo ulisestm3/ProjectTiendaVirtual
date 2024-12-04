@@ -1076,7 +1076,202 @@ def calcular_total_detalles(detalles, moneda_pedido):
 
     return total_cordobas, total_dolares
 
+@app.route('/supersu/editar')
+@login_required
+@role_required(1)  # 1 = Administrador
+def supersu_productos_editar():
+    _id_estado = 1
+    conexion = dbconnection()
+    cursor = conexion.cursor()
+    
+    # Consulta corregida
+    sql = '''
+    SELECT p.*, u.usuario as vendedor
+    FROM productos p
+    JOIN usuarios u ON u.id_usuario = p.id_usuario
+    WHERE p.id_estado = %s
+    '''
+    cursor.execute(sql, (_id_estado,))
+    producto = cursor.fetchall()
 
+    insertObjeto = []
+    columnaNames = [column[0] for column in cursor.description]
+
+    for record in producto:
+        insertObjeto.append(dict(zip(columnaNames, record)))
+    cursor.close()
+
+    # Llenar categorías
+    conexion = dbconnection()
+    cursor = conexion.cursor()
+    sql2 = "SELECT * FROM categorias"
+    cursor.execute(sql2)
+    categoria = cursor.fetchall()
+
+    insertCategoria = []
+    columnaNames = [column[0] for column in cursor.description]
+
+    for record in categoria:
+        insertCategoria.append(dict(zip(columnaNames, record)))
+    cursor.close()
+
+    return render_template('supersu/editar.html', producto=insertObjeto, categoria=insertCategoria)
+
+
+
+@app.route('/supersu/productos/guardar', methods=['GET','POST'])
+@login_required
+@role_required(1)  # 1 = Administrador
+def supersu_productos_guardar():
+    try:
+        conexion = dbconnection()
+        cursor = conexion.cursor()
+        _nombre = request.form['txtNombre']
+        _archivo1 = request.files['txtImagen1']
+        _archivo2 = request.files['txtImagen2']
+        _archivo3 = request.files['txtImagen3']
+        _video = request.files['txtVideo']
+        _moneda = request.form['txtMoneda']
+        _precio = request.form['txtPrecio']
+        _descripcion = request.form['txtDescripcion']
+        _id_categoria = request.form["txtCategoria"]
+        
+        print("categoria es: ", _id_categoria)
+        # Tomar el id_usuario del usuario autenticado
+        _id_usuario = current_user.id_usuario
+        _id_usuario_actualiza = current_user.id_usuario
+        fecha_registro = datetime.now()
+        fecha_actualizacion = datetime.now()
+        _id_estado = 1
+
+        nuevoNombre1 = ""
+        nuevoNombre2 = ""
+        nuevoNombre3 = ""
+        nuevoNombrevideo = ""
+
+        tiempo= datetime.now()
+        horaActual=tiempo.strftime('%Y-%m-%d_%H-%M-%S')
+
+        # Agregar logs para verificar que los archivos están siendo recibidos
+        print("Archivos recibidos:", request.files, request.form)
+
+        if _archivo1.filename != "":
+            nuevoNombre1 = horaActual + "_" + _archivo1.filename
+            print("Guardando imagen 1 con nombre:", nuevoNombre1)
+            _archivo1.save(os.path.join(app.root_path, "templates/sitio/img/", nuevoNombre1))
+
+        if _archivo2.filename != "":
+            nuevoNombre2 = horaActual + "_" + _archivo2.filename
+            print("Guardando imagen 2 con nombre:", nuevoNombre2)
+            _archivo2.save(os.path.join(app.root_path, "templates/sitio/img/", nuevoNombre2))
+
+        if _archivo3.filename != "":
+            nuevoNombre3 = horaActual + "_" + _archivo3.filename
+            print("Guardando imagen 3 con nombre:", nuevoNombre3)
+            _archivo3.save(os.path.join(app.root_path, "templates/sitio/img/", nuevoNombre3))
+
+        if _video.filename != "":
+            nuevoNombrevideo = horaActual + "_" + _video.filename
+            print("Guardando video con nombre:", nuevoNombrevideo)
+            _video.save(os.path.join(app.root_path, "templates/sitio/video/", nuevoNombrevideo))
+
+        print(_nombre, nuevoNombre1, nuevoNombre2, nuevoNombre3, nuevoNombrevideo, _precio, _descripcion, _moneda, _id_usuario, fecha_registro, fecha_actualizacion, _id_usuario_actualiza, _id_categoria, _id_estado)
+        
+        sql = """INSERT INTO productos (nombre, imagen1, imagen2, imagen3, video, precio, descripcion, moneda, id_usuario, fecha_registro, fecha_actualizacion, id_usuario_actualiza, id_categoria, id_estado) 
+                 VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"""
+        cursor.execute(sql, (_nombre, nuevoNombre1, nuevoNombre2, nuevoNombre3, nuevoNombrevideo, _precio, _descripcion, _moneda, _id_usuario, fecha_registro, fecha_actualizacion, _id_usuario_actualiza, _id_categoria, _id_estado))
+        conexion.commit()
+
+    except pymysql.Error as e:
+        print("Error de MySQL:", e)
+    except Exception as e:
+        print("Error general:", e)  # Captura otros posibles errores.
+    finally:
+        conexion.close()
+
+    return redirect('/supersu/editar')
+
+@app.route('/supersu/productos/actalizar', methods=['POST'])
+@login_required
+@role_required(1)
+def supersu_productos_actualizar():
+    conexion = dbconnection()
+    cursor = conexion.cursor()
+    _id_producto = request.form['txtId']
+    _nombre = request.form['txtNombre']
+    _archivo1 = request.files['txtImagen1']
+    _archivo2 = request.files['txtImagen2']
+    _archivo3 = request.files['txtImagen3']
+    _video = request.files['txtVideo']
+    _moneda = request.form['txtMoneda']
+    _precio = request.form['txtPrecio']
+    _descripcion = request.form['txtDescripcion']
+    _id_categoria = request.form["txtCategoria"]
+        
+    print("categoria es: ", _id_categoria)
+    # Tomar el id_usuario del usuario autenticado
+    _id_usuario_actualiza = current_user.id_usuario
+    fecha_actualizacion = datetime.now()
+    
+    nuevoNombre1 = ""
+    nuevoNombre2 = ""
+    nuevoNombre3 = ""
+    nuevoNombrevideo = ""
+
+    tiempo= datetime.now()
+    horaActual=tiempo.strftime('%Y-%m-%d_%H-%M-%S')
+    
+    if _archivo1.filename!="":
+        nuevoNombre1=horaActual+"_"+_archivo1.filename
+        _archivo1.save(os.path.join(app.root_path,"templates/sitio/img/"+nuevoNombre1))
+    else:
+        nuevoNombre1= request.form['txtImagen11']
+
+
+    if _archivo2.filename!="":
+        nuevoNombre2=horaActual+"_"+_archivo2.filename
+        _archivo2.save(os.path.join(app.root_path,"templates/sitio/img/"+nuevoNombre2))
+    else:
+        nuevoNombre2 = request.form['txtImagen21']
+
+
+    if _archivo3.filename!="":
+        nuevoNombre3=horaActual+"_"+_archivo3.filename
+        _archivo3.save(os.path.join(app.root_path,"templates/sitio/img/"+nuevoNombre3))
+    else:
+        nuevoNombre3 = request.form['txtImagen31']
+
+
+    if _video.filename!="":
+        nuevoNombrevideo=horaActual+"_"+_video.filename
+        _video.save(os.path.join(app.root_path,"templates/sitio/video/"+nuevoNombrevideo))
+    else:
+        nuevoNombrevideo = request.form['txtVideo1']
+
+            
+    sql = "update productos set nombre=%s, imagen1=%s, imagen2=%s, imagen3=%s, video=%s, precio=%s, descripcion=%s, moneda=%s, fecha_actualizacion=%s, id_usuario_actualiza=%s, id_categoria=%s where id_producto=%s"
+    cursor.execute(sql, (_nombre, nuevoNombre1, nuevoNombre2, nuevoNombre3, nuevoNombrevideo, _precio,_descripcion,_moneda, fecha_actualizacion, _id_usuario_actualiza, _id_categoria, _id_producto))
+    conexion.commit() 
+
+    return redirect('/supersu/editar')
+
+@app.route('/supersu/productos/borrar', methods=['POST'])
+@login_required
+@role_required(1)
+def supersu_productos_borrar():
+    _id_producto = request.form['txtID']
+
+    _id_usuario_actualiza = current_user.id_usuario
+    fecha_actualizacion = datetime.now()
+    
+    
+    conexion=dbconnection()
+    cursor=conexion.cursor()
+    sql = 'update productos set id_estado=2, fecha_actualizacion=%s, id_usuario_actualiza=%s where id_producto=%s'
+    cursor.execute(sql, (fecha_actualizacion, _id_usuario_actualiza, _id_producto))
+    conexion.commit()
+
+    return redirect('/supersu/editar')
 
 @app.route('/supersu/indexsupervisor')
 @role_required(2)  # 2 = Usuarios
