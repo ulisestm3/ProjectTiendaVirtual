@@ -141,6 +141,7 @@
                     <table class="table table-bordered">
                         <thead>
                             <tr>
+                                <th scope="col">Código</th>
                                 <th scope="col">Nombre</th>
                                 <th scope="col">Imagen</th>
                                 <th scope="col">Moneda</th>
@@ -153,6 +154,7 @@
                     <tbody>
                         {% for p in producto %}
                             <tr>
+                                <td>{{p.id_producto}}</td>
                                 <td>{{p.nombre}}</td>
                                 <td><img src="/img/{{p.imagen1}}" class="img-thumbnail" alt="{{p.imagen1}}" style="max-width: 100px;"></td>
                                 <td>{{p.moneda}}</td>
@@ -179,7 +181,7 @@
                                 <div class="modal-dialog">
                                 <div class="modal-content">
                                     <div class="modal-header">
-                                    <h1 class="modal-title fs-5" id="exampleModalLabel">{{p.nombre}}</h1>
+                                    <h1 class="modal-title fs-5" id="exampleModalLabel">Cod. {{p.id_producto}} - {{p.nombre}}</h1>
                                     <button type="submit" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                     </div>
                                     <div class="modal-body">

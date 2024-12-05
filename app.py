@@ -622,7 +622,7 @@ def mostrar_carrito():
 
     # Consultar los productos en el carrito del usuario
     cursor.execute(
-    "SELECT p.id_producto, p.nombre, p.precio, p.moneda, p.imagen1, c.cantidad "
+    "SELECT p.id_producto, p.nombre, p.precio, p.moneda, p.imagen1, c.cantidad"
     "FROM carrito c "
     "JOIN productos p ON c.id_producto = p.id_producto "
     "WHERE c.id_usuario = %s",
@@ -648,7 +648,7 @@ def agregar_al_carrito(id_producto):
         # Obtener los detalles del producto incluyendo su propietario (id_usuario)
         query_producto = """
             SELECT id_producto, nombre, moneda, imagen1, precio, id_usuario 
-            FROM productos 
+            FROM productos
             WHERE id_producto = %s AND id_estado = 1
         """
         cursor.execute(query_producto, (id_producto,))

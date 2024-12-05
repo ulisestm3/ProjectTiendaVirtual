@@ -75,6 +75,7 @@
                 <thead>
                     <tr>
                         <th>Imagen</th>
+                        <th>Código</th>
                         <th>Nombre</th>
                         <th>Moneda</th>
                         <th>Precio</th>
@@ -87,6 +88,7 @@
                     {% for item in carrito%}
                     <tr>
                         <td><img src="/img/{{ item['imagen1'] }}" alt="{{ item['imagen1'] }}" style="max-width: 100px; max-height: 100px;"></td>
+                        <td>{{ item['id_producto'] }}</td>
                         <td>{{ item['nombre'] }}</td>
                         <td>{{ item['moneda'] }}</td>
                         <td>{{ "{:,.2f}".format(item['precio']) }}</td>

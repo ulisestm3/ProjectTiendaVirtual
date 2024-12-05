@@ -65,6 +65,7 @@
         <!-- Contenido del producto -->
         <div class="container producto-container">
           {% for producto in productos %}
+            <h4>Código {{ producto[0] }}</h4>
             <h3>{{ producto[1] }}</h3>
             <h4>{{producto[8]}} {{ "{:,.2f}".format(producto[6]) }}</h4>
             {% if producto[7] %}
