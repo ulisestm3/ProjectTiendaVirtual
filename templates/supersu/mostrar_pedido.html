@@ -41,6 +41,9 @@
                             <a class="nav-link {% if request.path == '/supersu/editar' %}active{% endif %}" href="/supersu/editar">Productos</a>
                         </li>  
                         <li class="nav-item">
+                            <a class="nav-link {% if request.path == '/supersu/perfil' %}active{% endif %}" href="/supersu/perfil">Usuarios</a>
+                        </li>
+                        <li class="nav-item">
                             <a class="nav-link" href="{{ url_for('admin_logout') }}">Salir</a>
                         </li>
                     </ul>

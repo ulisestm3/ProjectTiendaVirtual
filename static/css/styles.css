@@ -377,3 +377,51 @@ label {
     font-weight: bold;
 }
 
+/* Estilo general para el acordeón */
+.accordion-button {
+    background-color: #2da9005f; /* Color de fondo del botón del acordeón */
+    color: white; /* Color de texto en el botón */
+    border: none; /* Sin borde en el botón */
+    font-size: 1rem; /* Tamaño de fuente */
+    font-weight: bold; /* Negrita */
+    padding: 10px 20px; /* Espaciado alrededor del texto */
+}
+
+.accordion-button:hover {
+    background-color: #2da900; /* Color al pasar el ratón */
+    color: #fff; /* Color del texto al pasar el ratón */
+}
+
+.accordion-button:not(.collapsed) {
+    background-color: #2da900c4; /* Fondo cuando el acordeón está abierto b88942*/
+    color: white; /* Color del texto cuando está abierto */
+}
+
+.accordion-item {
+    border: 1px solid #ddd; /* Borde alrededor del acordeón */
+    border-radius: 5px; /* Bordes redondeados */
+    margin-bottom: 10px; /* Espaciado entre los elementos */
+}
+
+.accordion-body {
+    background-color: #f9f9f9; /* Fondo del contenido del acordeón */
+    padding: 15px; /* Espaciado interno */
+    font-size: 1rem; /* Tamaño de fuente */
+    color: #333; /* Color de texto del cuerpo */
+}
+
+/* Estilo para el texto en los botones cuando está cerrado */
+.accordion-header .accordion-button::after {
+    content: '\002B'; /* Mostrar un símbolo de + cuando el acordeón está cerrado */
+    font-size: 1.5rem; /* Tamaño del símbolo */
+    color: #fff; /* Color del símbolo */
+    font-weight: bold; /* Negrita */
+}
+
+/* Estilo cuando el acordeón está abierto */
+.accordion-header .accordion-button:not(.collapsed)::after {
+    content: '\2212'; /* Mostrar un símbolo de - cuando el acordeón está abierto */
+    font-size: 1.5rem; /* Tamaño del símbolo */
+    color: #fff; /* Color del símbolo */
+}
+
