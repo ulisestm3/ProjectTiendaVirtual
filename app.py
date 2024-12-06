@@ -619,15 +619,14 @@ def mostrar_carrito():
     user_id = current_user.id_usuario  # Obtener el id del usuario actual
     conexion = dbconnection()
     cursor = conexion.cursor(pymysql.cursors.DictCursor)
-
+    sql= '''
+        SELECT p.id_producto, p.nombre, p.precio, p.moneda, p.imagen1, c.cantidad
+        FROM carrito c 
+        JOIN productos p ON c.id_producto = p.id_producto 
+        WHERE c.id_usuario = %s
+        '''
     # Consultar los productos en el carrito del usuario
-    cursor.execute(
-    "SELECT p.id_producto, p.nombre, p.precio, p.moneda, p.imagen1, c.cantidad"
-    "FROM carrito c "
-    "JOIN productos p ON c.id_producto = p.id_producto "
-    "WHERE c.id_usuario = %s",
-    (user_id,)
-)
+    cursor.execute(sql,user_id,)
 
     carrito = cursor.fetchall()
 
@@ -1292,7 +1291,7 @@ def supersu_ver_perfil():
                 u.id_usuario, 
                 u.usuario, 
                 u.id_rol, 
-                r.rol AS rol, 
+                r.rol AS rol, e.estado, 
                 u.nombre, 
                 u.apellido, 
                 u.direccion, 
@@ -1302,8 +1301,8 @@ def supersu_ver_perfil():
                 usuarios u
             JOIN 
                 roles r ON r.id_rol = u.id_rol
-            ORDER BY 
-            u.id_usuario DESC;
+            JOIN 
+                estados e ON e.id_estado = u.id_estado
 
             '''
     cursor.execute(sql2)
@@ -1336,65 +1335,6 @@ def supersu_ver_perfil():
 
     # Renderizar la plantilla
     return render_template('supersu/perfil.html', usuarios=usuarios, usuariosall=insertObjeto, rol=insertRol)
-
-@app.route('/supersu/actualizar_perfil', methods=['POST'])
-@login_required
-@role_required(1)  # 1 = Administrador
-def supersu_editar_perfil_actualizar():
-    try:
-        # Datos del formulario
-        _id_usuario = request.form["txtId"]
-        _nombre = request.form["txtNombre"]
-        _apellido = request.form["txtApellido"]
-        _telefono = request.form["txtTelefono"]
-        _direccion = request.form["txtDireccion"]
-        _email = request.form["txtEmail"]
-        _contrasena = request.form["txtContrasena"]
-
-        # Conexión a la base de datos
-        conexion = dbconnection()
-        cursor = conexion.cursor()
-        
-        _id_usuario_actualiza = current_user.id_usuario
-        fecha_actualizacion = datetime.now()
-
-        # Construcción de la consulta
-        if _contrasena.strip():  # Si la contraseña no está vacía
-            hashed_password = generate_password_hash(_contrasena)  # Hasheamos la contraseña
-            sql = '''
-                UPDATE Usuarios 
-                SET nombre=%s, apellido=%s, telefono=%s, direccion=%s, email=%s, password=%s, id_usuario_actualiza=%s, fecha_actualizacion=%s
-                WHERE id_usuario=%s
-            '''
-            cursor.execute(sql, (_nombre, _apellido, _telefono, _direccion, _email, hashed_password, _id_usuario_actualiza, fecha_actualizacion, _id_usuario))
-        else:
-            sql = '''
-                UPDATE Usuarios 
-                SET nombre=%s, apellido=%s, telefono=%s, direccion=%s, email=%s, id_usuario_actualiza=%s, fecha_actualizacion=%s
-                WHERE id_usuario=%s
-            '''
-            cursor.execute(sql, (_nombre, _apellido, _telefono, _direccion, _email, _id_usuario_actualiza, fecha_actualizacion, _id_usuario))
-
-        # Confirmar cambios y cerrar conexión
-        conexion.commit()
-        cursor.close()
-        conexion.close()
-
-        return redirect('/supersu/perfil')
-
-    except pymysql.Error as e:
-        print("Error de MySQL:", e)
-    except Exception as e:
-        print("Error general:", e)
-    finally:
-        try:
-            conexion.close()
-        except:
-            pass
-
-    return redirect('/supersu/perfil')
-
-from flask import flash
 
 @app.route('/supersu/registro/usuario', methods=['POST'])
 @login_required
@@ -1460,6 +1400,101 @@ def supersu_registro_usuario():
         flash('Error en el sistema. Por favor, intenta de nuevo más tarde.', 'error')  # Mensaje de error
         return redirect('/supersu/perfil')
 
+@app.route('/supersu/actualizar_perfil', methods=['POST'])
+@login_required
+@role_required(1)  # 1 = Administrador
+def supersu_editar_perfil_actualizar():
+    try:
+        # Datos del formulario
+        _id_usuario = request.form["txtId"]
+        _nombre = request.form["txtNombre"]
+        _apellido = request.form["txtApellido"]
+        _telefono = request.form["txtTelefono"]
+        _direccion = request.form["txtDireccion"]
+        _email = request.form["txtEmail"]
+        _contrasena = request.form["txtContrasena"]
+
+        # Conexión a la base de datos
+        conexion = dbconnection()
+        cursor = conexion.cursor()
+        
+        _id_usuario_actualiza = current_user.id_usuario
+        fecha_actualizacion = datetime.now()
+
+        # Construcción de la consulta
+        if _contrasena.strip():  # Si la contraseña no está vacía
+            hashed_password = generate_password_hash(_contrasena)  # Hasheamos la contraseña
+            sql = '''
+                UPDATE Usuarios 
+                SET nombre=%s, apellido=%s, telefono=%s, direccion=%s, email=%s, password=%s, id_usuario_actualiza=%s, fecha_actualizacion=%s
+                WHERE id_usuario=%s
+            '''
+            cursor.execute(sql, (_nombre, _apellido, _telefono, _direccion, _email, hashed_password, _id_usuario_actualiza, fecha_actualizacion, _id_usuario))
+        else:
+            sql = '''
+                UPDATE Usuarios 
+                SET nombre=%s, apellido=%s, telefono=%s, direccion=%s, email=%s, id_usuario_actualiza=%s, fecha_actualizacion=%s
+                WHERE id_usuario=%s
+            '''
+            cursor.execute(sql, (_nombre, _apellido, _telefono, _direccion, _email, _id_usuario_actualiza, fecha_actualizacion, _id_usuario))
+
+        # Confirmar cambios y cerrar conexión
+        conexion.commit()
+        cursor.close()
+        conexion.close()
+
+        return redirect('/supersu/perfil')
+
+    except pymysql.Error as e:
+        print("Error de MySQL:", e)
+    except Exception as e:
+        print("Error general:", e)
+    finally:
+        try:
+            conexion.close()
+        except:
+            pass
+
+    return redirect('/supersu/perfil')
+
+@app.route('/supersu/perfil/actualizar_estado', methods=['POST'])
+@login_required
+@role_required(1)
+def supersu_perfil_actualizar_estado():
+    _id_usuario = request.form['txtID']
+    _id_usuario_actualiza = current_user.id_usuario
+    fecha_actualizacion = datetime.now()
+
+    # Validación para evitar modificar el estado del usuario principal
+    if int(_id_usuario) == 1:
+        flash('No se puede modificar el estado del usuario principal.', 'danger')
+        return redirect('/supersu/perfil')
+
+    # Conexión para obtener el estado actual
+    conexion = dbconnection()
+    cursor = conexion.cursor()
+    sql_select = 'SELECT id_estado FROM usuarios WHERE id_usuario = %s'
+    cursor.execute(sql_select, (_id_usuario,))
+    estado_actual = cursor.fetchone()
+
+    # Validación para cambiar el estado
+    if estado_actual:
+        nuevo_estado = 1 if estado_actual[0] == 2 else 2  # Cambiar entre 1 y 2
+        sql_update = '''
+            UPDATE usuarios 
+            SET id_estado = %s, fecha_actualizacion = %s, id_usuario_actualiza = %s 
+            WHERE id_usuario = %s
+        '''
+        cursor.execute(sql_update, (nuevo_estado, fecha_actualizacion, _id_usuario_actualiza, _id_usuario))
+        conexion.commit()
+        mensaje = 'Usuario activado correctamente' if nuevo_estado == 1 else 'Usuario desactivado correctamente'
+        flash(mensaje, 'success')
+    else:
+        flash('Usuario no encontrado.', 'danger')
+
+    cursor.close()
+    conexion.close()
+    return redirect('/supersu/perfil')
 
 
 @app.route('/supersu/indexsupervisor')

@@ -150,13 +150,14 @@
                                                 <th scope="col">ID</th>
                                                 <th scope="col">Usuario</th>
                                                 <th scope="col">Rol</th>
+                                                <th scope="col">Estado</th>
                                                 <th scope="col">Nombre</th>
                                                 <th scope="col">Apellido</th>
                                                 <th scope="col">Teléfono</th>
                                                 <th scope="col">Dirección</th>
                                                 <th scope="col">Email</th>
                                                 <th scope="col">Editar</th>
-                                                <th scope="col">Borrar</th>
+                                                <th scope="col">Bloqueo</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -165,6 +166,7 @@
                                                     <td>{{ u.id_usuario }}</td>
                                                     <td>{{ u.usuario }}</td>
                                                     <td>{{ u.rol }}</td>
+                                                    <td>{{ u.estado }}</td>
                                                     <td>{{ u.nombre }}</td>
                                                     <td>{{ u.apellido }}</td>
                                                     <td>{{ u.telefono }}</td>
@@ -176,11 +178,16 @@
                                                         </button>
                                                     </td>
                                                     <td>
-                                                        <form action="" method="post">
-                                                            <input type="hidden" name="txtID" value="">
-                                                            <button type="submit" class="btn btn-danger btn-sm">Eliminar</button>
+                                                        <form action="/supersu/perfil/actualizar_estado" method="post">
+                                                            <input type="hidden" name="txtID" value="{{ u.id_usuario }}">
+                                                            {% if u.id_estado == 2 %}
+                                                                <button type="submit" class="btn btn-success btn-sm">Cambiar</button>
+                                                            {% else %}
+                                                                <button type="submit" class="btn btn-danger btn-sm">Cambiar</button>
+                                                            {% endif %}
                                                         </form>
-                                                    </td>
+                                                    </td>                                                    
+                                                    
                                                 </tr>
                                             {% endfor %}
                                         </tbody>
