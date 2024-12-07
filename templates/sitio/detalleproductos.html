@@ -14,17 +14,17 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
 
     <script>
+      const isUserLoggedIn = {{ 'true' if session.get('user_id') else 'false' }};
+      
       function checkSessionAndBuy(event) {
-        // Verificamos si hay sesión activa
-        {% if not session.get('user_id') %}
+        if (!JSON.parse(isUserLoggedIn)) {
           event.preventDefault(); // Evita que el formulario se envíe
-          
-          // Mostrar modal de alerta
           const modal = new bootstrap.Modal(document.getElementById('sessionModal'));
           modal.show();
-        {% endif %}
+        }
       }
     </script>
+    
 
 </head>
 <body class="d-flex flex-column min-vh-100">

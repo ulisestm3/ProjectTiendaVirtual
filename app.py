@@ -11,6 +11,10 @@ import os
 app = Flask(__name__)
 app.secret_key = config.HEX_SEC_KEY
 
+#Activar entorno virtual en windows bash: .\myenv\Scripts\activate
+#Activar entorno virtual en Linux bash: source myenv/bin/activate
+#Correr la app: python app.py
+
 # Función para establecer la conexión a la base de datos
 def dbconnection():
     return pymysql.connect(
